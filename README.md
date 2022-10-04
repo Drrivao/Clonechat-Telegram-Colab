@@ -43,7 +43,7 @@ Na 2º célula:
 
 * Por fim, substitua os textos `NOME DO CANAL PARA CLONAR` e `NOME DO CANAL DE DESTINO` pelos nomes dos canais de origem/destino. Ou insira somente o nome do canal de origem e deixe o campo de "DEST" vazio para que o clonechat crie um novo canal automaticamente.
 
-**Atenção: o telegram limita para cada usuário a criação de até 50 canais por dia. Veja mais mais sobre isso e outro limites neste [site](https://limits.tginfo.me/en). Ademais, lembre-se de inserir os nomes dos canais entre aspas simples ou duplas, conforme encontra-se no exemplo da célula.**
+**Atenção: o Telegram limita para cada usuário a criação de até 50 canais por dia. Veja mais mais sobre esse e outros limites neste [site](https://limits.tginfo.me/en). Ademais, lembre-se de inserir os nomes dos canais entre aspas simples ou duplas, conforme encontra-se no exemplo da célula.**
 
 ### Notas
 
@@ -68,4 +68,4 @@ Na 2º célula:
       1) pyrogram.errors.exceptions.bad_request_400.FreshChangeAdminsForbidden: Telegram says: [400 FRESH_CHANGE_ADMINS_FORBIDDEN] - You can't change administrator settings in this chat because your session was logged-in recently (caused by "channels.EditAdmin")
       2) pyrogram.errors.exceptions.not_acceptable_406.FreshChangeAdminsForbidden: Telegram says: [406 FRESH_CHANGE_ADMINS_FORBIDDEN] - You were just elected admin, you can't add or modify other admins yet (caused by "channels.EditAdmin")
 
-Causa: Possivelmente já tenha sido realizada uma tarefa de clonar o mesmo canal em uma sessão diferente do pyrogram no modo bot e, por isso, a API do Telegram rejeita a nova chamada, sendo necessário clonar em modo user no novo cliente. A única forma de resolver este problema (sem modificações no script) é recuperando o arquivo `user.session` dessa sessão antiga e excluindo o `user.session` existente na pasta `Clonechat-Telegram-Colab`.
+Causa: Possivelmente já tenha sido realizada uma tarefa de clonar o mesmo canal em uma sessão diferente do pyrogram no modo bot e, por isso, a API do Telegram rejeita a nova chamada, sendo necessário clonar em modo user no novo cliente. A única forma de resolver esse problema (sem modificações no script) é recuperando o arquivo `user.session` dessa sessão antiga e excluindo o `user.session` existente na pasta `Clonechat-Telegram-Colab`.
