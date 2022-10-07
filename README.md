@@ -11,8 +11,8 @@ Na 2º célula:
 3) Se quiser clonar em modo bot, altere o texto `PUT YOUR BOT TOKEN HERE` para o [token](https://t.me/BotFather) do seu bot;
 4) Execute a célula.
 
->Atenção \
-Uma caixa de diálogo será aberta para inserir o seu número de telefone para realizar a autenticação 2FA. Não insira outro dado além desse. Segue um exemplo de como inserir o nº: 556795874621
+>Atenção! \
+Insira na caixa de diálogo que será aberta somente o seu número de telefone para realizar a autenticação 2FA. Ignore o aviso da mensagem para colocar o bot token. Segue um exemplo de como inserir o nº: 556795874621
 
 
 ### Adicionando as flags
@@ -61,7 +61,7 @@ Uma caixa de diálogo será aberta para inserir o seu número de telefone para r
 
 * É possível criar uma fila de canais para clonar, basta copiar a última célula e preenchê-la com os novos valores desejados para as flags. Contudo, não inicie mais de uma instância do clonechat na mesma conta e não utilize as mesmas credenciais para outras contas.
 
-* Na primeira vez ao utilizar o clonechat, é preciso fazer a autenticação com a sua conta no Telegram, então será aberta uma caixa de diálogo para você inserir o seu número de telefone e, em seguida, o código de verificação. Em alguns celulares pode não ser possível realizar essa etapa pelo colab, sendo necessário que seja feita, primeiramente, no navegador de uma máquina local. Outra alternativa é enviar para dentro da pasta `Clonechat-Telegram-Colab` uma sessão já salva com o arquivo `user.session`.
+* Em alguns celulares pode não ser possível realizar a etapa de autenticação com a sua conta no Telegram pelo colab, sendo necessário que seja feita, primeiramente, no navegador de uma máquina local. Outra alternativa é enviar para dentro da pasta `Clonechat-Telegram-Colab` uma sessão já salva com o arquivo `user.session`.
 
 * Caso queira utilizar o clonechat na sua máquina local, baixe-o no [repositório oficial](https://github.com/apenasrr/clonechat) e [clique aqui](https://upolar.github.io/clonechats-docs/) para ver o tutorial completo.
 
