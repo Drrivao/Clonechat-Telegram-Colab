@@ -11,6 +11,10 @@ Na 2º célula:
 3) Se quiser clonar em modo bot, altere o texto `PUT YOUR BOT TOKEN HERE` para o [token](https://t.me/BotFather) do seu bot;
 4) Execute a célula.
 
+>Atenção \
+Uma caixa de diálogo será aberta para inserir o seu número de telefone para realizar a autenticação 2FA. Não insira outro dado além desse. Segue um exemplo de como inserir o nº: 556795874621
+
+
 ### Adicionando as flags
 
 * A 3º célula contém alguns campos a serem preenchidos, indicando as flags para a execução do script. Segue a descrição de cada um:
