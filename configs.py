@@ -55,11 +55,11 @@ def ensure_connection(client_name):
                 pass
 
 useraccount = ensure_connection("user")
-if options.bot_token is not None:
+if options.bot_token != 'blank':
     bot = ensure_connection("bot")
-
-BOT_TOKEN=options.bot_token
-BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
+    BOT_TOKEN=options.bot_token
+    BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
+else: BOT_ID=''
 
 vars={
     'bot_id':BOT_ID,
