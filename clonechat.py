@@ -31,7 +31,9 @@ def ensure_connection(client_name):
 
 	if client_name == "user":
 		try:
-			useraccount = Client(client_name)
+			useraccount = Client(
+				client_name,takeout=True
+			)
 			useraccount.start()
 			return useraccount
 		except:
@@ -399,11 +401,18 @@ def update_cache(CACHE_FILE, list_posted):
 	with open(CACHE_FILE, mode="w") as file:
 		file.write(json.dumps(list_posted))
 
-def get_last_message_id(origin_chat):
+def get_valid_ids(origin_chat):
 
-	iter_message = useraccount.get_chat_history(origin_chat)
-	message = next(iter_message)
-	return message.id
+	global chat_ids,last_message_id
+
+	chat_ids=[]
+	print('Getting messages...')
+	his=useraccount.get_chat_history(origin_chat)
+	for message in his:chat_ids.append(message.id)
+	last_message_id=chat_ids[0]
+	chat_ids.sort()
+
+	return last_message_id,chat_ids
 
 def get_files_type_excluded():
 
@@ -418,7 +427,7 @@ def get_files_type_excluded():
 def is_empty_message(message, message_id, last_message_id) -> bool:
 
 	if message.empty or message.service or message.dice or message.location:
-		print(f"{message_id}/{last_message_id} (blank id)")
+		print(f"{message_id}/{last_message_id} (type not recognized)")
 		wait_a_moment(message_id, skip=True)
 		return True
 	else:
@@ -432,14 +441,6 @@ def must_be_ignored(func_sender, message_id, last_message_id) -> bool:
 		return True
 	else:
 		return False
-
-def get_first_message_id(list_posted) -> int:
-
-	if len(list_posted) > 0:
-		message_id = list_posted[-1]
-	else:
-		message_id = 1
-	return message_id
 
 def ensure_folder_existence(folder_path):
 	"""If the folder does not exist, it 
@@ -482,47 +483,36 @@ def main():
 
 	global FILES_TYPE_EXCLUDED
 	FILES_TYPE_EXCLUDED = get_files_type_excluded()
-	last_message_id = get_last_message_id(origin_chat)
+	get_valid_ids(origin_chat)
 
 	int_task_type = NEW
 	list_posted = get_list_posted(int_task_type)
 
-	message_id = get_first_message_id(list_posted)
-	while message_id < last_message_id:
-		ft_at = message_id + 5
+	ids_to_try=chat_ids[len(list_posted):]
 
-		while message_id < ft_at:
-			if message_id == last_message_id:
-				break
+	for message_id in ids_to_try:
 
-			message_id = message_id + 1
-			if message_id in list_posted:
-				continue
+		message = get_message(origin_chat, message_id)
 
-			message = get_message(origin_chat, message_id)
+		if is_empty_message(message, message_id, last_message_id):
+			list_posted += [message.id]
+			continue
 
-			if is_empty_message(message, message_id, last_message_id):
-				list_posted += [message.id]
-				continue
+		func_sender = get_sender(message)
 
-			func_sender = get_sender(message)
-
-			if must_be_ignored(func_sender, message_id, last_message_id):
-				list_posted += [message.id]
-				update_cache(CACHE_FILE, list_posted)
-				continue
-
-			func_sender(message, destino)
-			print(f"{message_id}/{last_message_id}")
-
+		if must_be_ignored(func_sender, message_id, last_message_id):
 			list_posted += [message.id]
 			update_cache(CACHE_FILE, list_posted)
+			continue
 
-		if message_id < last_message_id:
-			print('Aguarde 25 segundos...')
-		else:
-			break
+		func_sender(message, destino)
+		print(f"{message_id}/{last_message_id}")
+
+		list_posted += [message.id]
+		update_cache(CACHE_FILE, list_posted)
+
 		wait_a_moment(message_id)
+
 
 config_data = get_config_data(os.path.join("config.ini"))
 USER_DELAY_SECONDS = float(config_data.get("user_delay_seconds"))

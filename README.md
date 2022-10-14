@@ -57,7 +57,7 @@ Insira na caixa de diálogo que será aberta somente o seu número de telefone p
 
 * O modo bot está disponível somente para canais em que você é um administrador.
 
-* As configurações de delay podem ser modificadas, contudo, o mínimo recomendado para a execução do clonechat em modo user é de 25 segundos. Valores menores que esse podem acarretar em banimento de sua conta permanentemente por flood.
+* As configurações de delay podem ser modificadas, contudo, o mínimo recomendado para a execução do clonechat em modo user é de 10 segundos. Valores menores que esse podem acarretar em banimento de sua conta permanentemente por flood.
 
 * É possível criar uma fila de canais para clonar, basta copiar a última célula e preenchê-la com os novos valores desejados para as flags. Contudo, não inicie mais de uma instância do clonechat na mesma conta e não utilize as mesmas credenciais para outras contas.
 
