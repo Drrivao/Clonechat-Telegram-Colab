@@ -1,25 +1,11 @@
-from configparser import ConfigParser
 from pyrogram import Client
-import argparse, os
+import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--api_id')
 parser.add_argument('--api_hash')
 parser.add_argument('--bot_token')
 options = parser.parse_args()
-
-def config_vars(i,j):
-
-    if not os.path.exists('config.ini'):
-        with open('config.ini', 'w') as f:
-            f.write('[default]')
-
-    config = ConfigParser()
-    config.read('config.ini')
-    config.set('default',i,j)
-
-    with open('config.ini', 'w') as configfile:
-        config.write(configfile)
 
 def ensure_connection(client_name):
 
@@ -61,15 +47,13 @@ if options.bot_token != 'blank':
     BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
 else: BOT_ID=''
 
-vars={
-    'bot_id':BOT_ID,
-    'user_delay_seconds':'25',
-    'bot_delay_seconds':'1.2',
-    'skip_delay_seconds':'1'
-}
+data=f"""\
+[default]
+bot_id:{BOT_ID},
+user_delay_seconds:10,
+bot_delay_seconds:1.2,
+skip_delay_seconds:1\
+"""
 
-k=list(vars.keys())
-v=list(vars.values())
-
-for n in range(len(vars)):
-    config_vars(k[n],v[n])
+with open('config.ini', 'w') as f:
+    f.write(data)
