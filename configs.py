@@ -49,9 +49,9 @@ else: BOT_ID=''
 
 data=f"""\
 [default]
-bot_id:{BOT_ID},
-user_delay_seconds:10,
-bot_delay_seconds:1.2,
+bot_id:{BOT_ID}
+user_delay_seconds:10
+bot_delay_seconds:1.2
 skip_delay_seconds:1\
 """
 

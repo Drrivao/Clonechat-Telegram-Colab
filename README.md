@@ -69,9 +69,22 @@ Insira na caixa de diálogo que será aberta somente o seu número de telefone p
 
 * [Método channels.editAdmin](https://core.telegram.org/method/channels.editAdmin#bots-can-use-this-method)
 
-      1) pyrogram.errors.exceptions.bad_request_400.FreshChangeAdminsForbidden: Telegram says: [400 FRESH_CHANGE_ADMINS_FORBIDDEN] - You can't change administrator settings in this chat because your session was logged-in recently (caused by "channels.EditAdmin")
-      2) pyrogram.errors.exceptions.not_acceptable_406.FreshChangeAdminsForbidden: Telegram says: [406 FRESH_CHANGE_ADMINS_FORBIDDEN] - You were just elected admin, you can't add or modify other admins yet (caused by "channels.EditAdmin")
-
+```
+pyrogram.errors.exceptions.bad_request_400.FreshChangeAdminsForbidden: Telegram says: [400 FRESH_CHANGE_ADMINS_FORBIDDEN] - You can't change administrator settings in this chat because your session was logged-in recently (caused by "channels.EditAdmin")
+```
+```
+pyrogram.errors.exceptions.not_acceptable_406.FreshChangeAdminsForbidden: Telegram says: [406 FRESH_CHANGE_ADMINS_FORBIDDEN] - You were just elected admin, you can't add or modify other admins yet (caused by "channels.EditAdmin")
+```
 Causa: possivelmente já tenha sido realizada uma tarefa de clonar o mesmo canal em uma sessão diferente do pyrogram no modo bot e, por isso, a API do Telegram rejeita a nova chamada, sendo necessário clonar em modo user no novo cliente.
 
 Solução: a única forma de resolver esse problema (sem modificações no script) é recuperando o arquivo `user.session` dessa sessão antiga e excluindo o `user.session` existente na pasta `Clonechat-Telegram-Colab`.
+
+* [Método get_dialogs](https://docs.pyrogram.org/api/methods/get_dialogs#pyrogram.Client.get_dialogs)
+
+```
+AttributeError: 'NoneType' object has no attribute 'get_dialogs'
+```
+
+Causas: os títulos dos chats inseridos não existem ou você não participa deles. Além disso, pode não ter sido feita a autorização para 'Data export request' no seu telegram.
+
+Solução: para o último caso, busque pela mesma notificação em que foi recebida a mensagem com o código de verificação. Logo abaixo dela deverá conter a mensagem requisitando a autorização, então, basta selecionar a opção "Allow".
