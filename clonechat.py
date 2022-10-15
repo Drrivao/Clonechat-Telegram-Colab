@@ -403,8 +403,6 @@ def update_cache(CACHE_FILE, list_posted):
 
 def get_valid_ids(origin_chat):
 
-	global chat_ids,last_message_id
-
 	chat_ids=[]
 	print('Getting messages...')
 	his=useraccount.get_chat_history(origin_chat)
@@ -424,7 +422,7 @@ def get_files_type_excluded():
 		FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input()
 		return FILES_TYPE_EXCLUDED
 
-def is_empty_message(message, message_id, last_message_id) -> bool:
+def unknown_message(message, message_id, last_message_id) -> bool:
 
 	if message.empty or message.service or message.dice or message.location:
 		print(f"{message_id}/{last_message_id} (type not recognized)")
@@ -483,7 +481,7 @@ def main():
 
 	global FILES_TYPE_EXCLUDED
 	FILES_TYPE_EXCLUDED = get_files_type_excluded()
-	get_valid_ids(origin_chat)
+	last_message_id,chat_ids=get_valid_ids(origin_chat)
 
 	int_task_type = NEW
 	list_posted = get_list_posted(int_task_type)
@@ -494,7 +492,7 @@ def main():
 
 		message = get_message(origin_chat, message_id)
 
-		if is_empty_message(message, message_id, last_message_id):
+		if unknown_message(message, message_id, last_message_id):
 			list_posted += [message.id]
 			continue
 
@@ -512,7 +510,6 @@ def main():
 		update_cache(CACHE_FILE, list_posted)
 
 		wait_a_moment(message_id)
-
 
 config_data = get_config_data(os.path.join("config.ini"))
 USER_DELAY_SECONDS = float(config_data.get("user_delay_seconds"))
