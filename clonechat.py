@@ -1,7 +1,9 @@
 import argparse, json, os, time
 from configparser import ConfigParser
 from pyrogram import Client
-from pyrogram.errors import ChannelInvalid, FloodWait, PeerIdInvalid
+from pyrogram.errors import (
+	ChannelInvalid, FloodWait, PeerIdInvalid,TakeoutInitDelay
+)
 from pyrogram.types import ChatPrivileges
 
 def start():
@@ -530,8 +532,13 @@ os.system("clear||cls")
 
 MODE = options.mode
 
-client=Client('user',takeout=True)
-with client:get_chats(client)
+try:
+	client=Client('user',takeout=True)
+	with client:get_chats(client)
+except TakeoutInitDelay:
+	print('Confirm the data export request first.');exit()
+except Exception as e:
+	print(f"It wasn't possible to continue due to {e}\n");exit()
 
 useraccount = ensure_connection("user")
 if MODE == "bot":
