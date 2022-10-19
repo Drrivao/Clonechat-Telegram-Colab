@@ -31,9 +31,7 @@ def ensure_connection(client_name):
 
 	if client_name == "user":
 		try:
-			useraccount = Client(
-				client_name,takeout=True
-			)
+			useraccount = Client(client_name)
 			useraccount.start()
 			return useraccount
 		except:
@@ -49,15 +47,17 @@ def ensure_connection(client_name):
 		except:
 			print("Delete Session file and try again.")
 
-def get_chats():
+def get_chats(client):
 
 	global origin_chat
 	global channel_origem
 	global destino
+	global last_message_id
+	global chat_ids
 
 	names_ch = []
 	ids_ch = []
-	list_ch = useraccount.get_dialogs()
+	list_ch = client.get_dialogs()
 
 	for cod, dialog in enumerate(list_ch):
 		channels_names = str(dialog.chat.title or dialog.chat.first_name)
@@ -68,8 +68,10 @@ def get_chats():
 	channel_origem=names_ch.index(options.orig)
 	origin_chat = ids_ch[channel_origem]
 
+	last_message_id,chat_ids=get_valid_ids(client,origin_chat)
+
 	if options.dest is None:
-		channel_destino = useraccount.create_channel(title=f'{names_ch[channel_origem]}-clone')
+		channel_destino = client.create_channel(title=f'{names_ch[channel_origem]}-clone')
 		destino = channel_destino.id
 	else:
 		channel_destino=names_ch.index(options.dest)
@@ -78,7 +80,7 @@ def get_chats():
 	if options.mode == "bot":
 		chats=[origin_chat,destino]
 		for chat in chats:
-			useraccount.promote_chat_member(
+			client.promote_chat_member(
 				chat,BOT_ID,
 				ChatPrivileges(can_post_messages=True)
 			)
@@ -401,12 +403,12 @@ def update_cache(CACHE_FILE, list_posted):
 	with open(CACHE_FILE, mode="w") as file:
 		file.write(json.dumps(list_posted))
 
-def get_valid_ids(origin_chat):
+def get_valid_ids(client,origin_chat):
 
 	chat_ids=[]
 	print('Getting messages...')
-	his=useraccount.get_chat_history(origin_chat)
-	for message in his:chat_ids.append(message.id)
+	hist=client.get_chat_history(origin_chat)
+	for message in hist:chat_ids.append(message.id)
 	last_message_id=chat_ids[0]
 	chat_ids.sort()
 
@@ -481,7 +483,6 @@ def main():
 
 	global FILES_TYPE_EXCLUDED
 	FILES_TYPE_EXCLUDED = get_files_type_excluded()
-	last_message_id,chat_ids=get_valid_ids(origin_chat)
 
 	int_task_type = NEW
 	list_posted = get_list_posted(int_task_type)
@@ -529,6 +530,9 @@ os.system("clear||cls")
 
 MODE = options.mode
 
+client=Client('user',takeout=True)
+with client:get_chats(client)
+
 useraccount = ensure_connection("user")
 if MODE == "bot":
 	bot = ensure_connection("bot")
@@ -543,5 +547,4 @@ DELAY_SKIP = SKIP_DELAY_SECONDS
 NEW = options.new
 
 if __name__=="__main__":
-	get_chats()
 	start()
