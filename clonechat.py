@@ -2,7 +2,8 @@ import argparse, json, os, time
 from configparser import ConfigParser
 from pyrogram import Client
 from pyrogram.errors import (
-	ChannelInvalid, FloodWait, PeerIdInvalid,TakeoutInitDelay
+	ChannelInvalid, FloodWait,
+	PeerIdInvalid,TakeoutInitDelay
 )
 from pyrogram.types import ChatPrivileges
 
@@ -472,10 +473,11 @@ def main():
 	int_task_type = NEW
 	list_posted = get_list_posted(int_task_type)
 	ids_to_try=chat_ids[len(list_posted):]
-	last=len(ids_to_try)
+	if LIMIT != 0: _ids_to_try=ids_to_try[:LIMIT]
+	else: _ids_to_try=ids_to_try
+	last=len(_ids_to_try)
 
-	for message_id in ids_to_try:
-
+	for message_id in _ids_to_try:
 		curr=ids_to_try.index(message_id)+1
 		message = get_message(origin_chat, message_id)
 		func_sender = get_sender(message)
@@ -501,12 +503,14 @@ parser.add_argument("--orig")
 parser.add_argument("--dest")
 parser.add_argument("--mode",choices=["user", "bot"])
 parser.add_argument("--new", type=int, choices=[1, 2])
+parser.add_argument("--limit")
 parser.add_argument("--type")
 options = parser.parse_args()
 
 MODE = options.mode
 DELAY_SKIP = SKIP_DELAY_SECONDS
 NEW = options.new
+LIMIT=int(options.limit)
 
 try:
 	client=Client('user',takeout=True)
@@ -518,6 +522,7 @@ except Exception as e:
 
 os.system("clear||cls")
 useraccount = ensure_connection("user")
+
 if MODE == "bot":
 	bot = ensure_connection("bot")
 	tg = bot

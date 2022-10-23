@@ -44,10 +44,13 @@ Insira na caixa de diálogo que será aberta somente o seu número de telefone p
                          8 = Vídeos
                          9 = Enquetes
 
+      LIMIT              limite de encaminhamento de mensagens
 
 * Por fim, substitua os textos `NOME DO CANAL PARA CLONAR` e `NOME DO CANAL DE DESTINO` pelos nomes dos canais de origem/destino. Ou insira somente o nome do canal de origem e deixe o campo de "DEST" vazio para que o clonechat crie um novo canal automaticamente.
 
-**Atenção: o Telegram limita para cada usuário a criação de até 50 canais por dia. Veja mais mais sobre esse e outros limites neste [site](https://limits.tginfo.me/en). Ademais, lembre-se de inserir os nomes dos canais entre aspas simples ou duplas, conforme encontra-se no exemplo da célula.**
+* Digite o valor 0 para "LIMIT" se deseja encaminhar todas as mensagens do chat de origem. Se não, coloque o o número máximo de encaminhamentos desejado.
+
+>Atenção: o Telegram limita para cada usuário a criação de até 50 canais por dia. Veja mais mais sobre esse e outros limites neste [site](https://limits.tginfo.me/en). Ademais, lembre-se de inserir os nomes dos canais entre aspas simples ou duplas, conforme encontra-se no exemplo da célula.
 
 ### Notas
 
@@ -75,16 +78,15 @@ pyrogram.errors.exceptions.bad_request_400.FreshChangeAdminsForbidden: Telegram 
 ```
 pyrogram.errors.exceptions.not_acceptable_406.FreshChangeAdminsForbidden: Telegram says: [406 FRESH_CHANGE_ADMINS_FORBIDDEN] - You were just elected admin, you can't add or modify other admins yet (caused by "channels.EditAdmin")
 ```
-Causa: possivelmente já tenha sido realizada uma tarefa de clonar o mesmo canal em uma sessão diferente do pyrogram no modo bot e, por isso, a API do Telegram rejeita a nova chamada, sendo necessário clonar em modo user no novo cliente.
+Causa: possivelmente já tenha sido realizada uma tarefa de clonar o mesmo canal em uma sessão diferente do pyrogram no modo bot e, por isso, a API do Telegram rejeita a nova chamada.
 
-Solução: a única forma de resolver esse problema (sem modificações no script) é recuperando o arquivo `user.session` dessa sessão antiga e excluindo o `user.session` existente na pasta `Clonechat-Telegram-Colab`.
+Solução: Entre na sua conta do Telegram e siga este caminho: `Settings > Devices (or Privacy & Security > Active Sessions)`. Em "Active Sessions" desative todas as sessões ativas com o nome "TeleKrram Pyrogram". Por fim, faça refaça a etapa de autenticação.
 
 * [Método get_dialogs](https://docs.pyrogram.org/api/methods/get_dialogs#pyrogram.Client.get_dialogs)
 
 ```
 AttributeError: 'NoneType' object has no attribute 'get_dialogs'
 ```
-
 Causas: os títulos dos chats inseridos não existem ou você não participa deles. Além disso, pode não ter sido feita a autorização para 'Data export request' no seu telegram.
 
 Solução: para o último caso, busque pela mesma notificação em que foi recebida a mensagem com o código de verificação. Logo abaixo dela deverá conter a mensagem requisitando a autorização, então, basta selecionar a opção "Allow".
