@@ -19,7 +19,6 @@ def start():
 	DESTINATION_CHAT_TITLE = check_chat_id(origin_chat)
 	if DESTINATION_CHAT_TITLE is False:
 		raise AttributeError("Fix the destination chat_id")
-
 	if options.type is None:
 		pass
 	else:
@@ -40,7 +39,6 @@ def ensure_connection(client_name):
 			print("Delete Session file and try again.")
 	else:
 		pass
-
 	if client_name == "bot":
 		try:
 			bot = Client(client_name)
@@ -54,14 +52,13 @@ def get_chats(client):
 	global origin_chat
 	global channel_origem
 	global destino
-	global last_message_id
 	global chat_ids
 
 	names_ch = []
 	ids_ch = []
 	list_ch = client.get_dialogs()
 
-	for cod, dialog in enumerate(list_ch):
+	for dialog in list_ch:
 		channels_names = str(dialog.chat.title or dialog.chat.first_name)
 		channels_ids = int(dialog.chat.id)
 		names_ch.append(channels_names)
@@ -69,8 +66,7 @@ def get_chats(client):
 
 	channel_origem=names_ch.index(options.orig)
 	origin_chat = ids_ch[channel_origem]
-
-	last_message_id,chat_ids=get_valid_ids(client,origin_chat)
+	chat_ids=get_valid_ids(client,origin_chat)
 
 	if options.dest is None:
 		channel_destino = client.create_channel(title=f'{names_ch[channel_origem]}-clone')
@@ -392,9 +388,9 @@ def get_list_posted(int_task_type):
 		else:
 			return []
 
-def wait_a_moment(message_id, skip=False):
+def wait_a_moment(curr, skip=False):
 
-	if message_id != 1:
+	if curr != 1:
 		if skip:
 			time.sleep(DELAY_SKIP)
 		else:
@@ -410,11 +406,12 @@ def get_valid_ids(client,origin_chat):
 	chat_ids=[]
 	print('Getting messages...')
 	hist=client.get_chat_history(origin_chat)
-	for message in hist:chat_ids.append(message.id)
-	last_message_id=chat_ids[0]
+	for message in hist:
+		if message.media or message.text or message.poll:
+			chat_ids.append(message.id)
 	chat_ids.sort()
 
-	return last_message_id,chat_ids
+	return chat_ids
 
 def get_files_type_excluded():
 
@@ -426,30 +423,17 @@ def get_files_type_excluded():
 		FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input()
 		return FILES_TYPE_EXCLUDED
 
-def unknown_message(message, message_id, last_message_id) -> bool:
-
-	if message.empty or message.service or message.dice or message.location:
-		print(f"{message_id}/{last_message_id} (type not recognized)")
-		wait_a_moment(message_id, skip=True)
-		return True
-	else:
-		return False
-
-def must_be_ignored(func_sender, message_id, last_message_id) -> bool:
+def must_be_ignored(func_sender, curr, last) -> bool:
 
 	if func_sender in FILES_TYPE_EXCLUDED:
-		print(f"{message_id}/{last_message_id} (skip by type)")
-		wait_a_moment(message_id, skip=True)
+		print(f"{curr}/{last} (skip by type)")
+		wait_a_moment(curr, skip=True)
 		return True
 	else:
 		return False
 
 def ensure_folder_existence(folder_path):
-	"""If the folder does not exist, it 
-	s
-	Args:
-		folder_path (str): folder path
-	"""
+
 	if not os.path.exists(folder_path):
 		os.mkdir(folder_path)
 
@@ -485,34 +469,26 @@ def main():
 
 	global FILES_TYPE_EXCLUDED
 	FILES_TYPE_EXCLUDED = get_files_type_excluded()
-
 	int_task_type = NEW
 	list_posted = get_list_posted(int_task_type)
-
 	ids_to_try=chat_ids[len(list_posted):]
+	last=len(ids_to_try)
 
 	for message_id in ids_to_try:
 
+		curr=ids_to_try.index(message_id)+1
 		message = get_message(origin_chat, message_id)
-
-		if unknown_message(message, message_id, last_message_id):
-			list_posted += [message.id]
-			continue
-
 		func_sender = get_sender(message)
-
-		if must_be_ignored(func_sender, message_id, last_message_id):
+		if must_be_ignored(func_sender, curr, last):
 			list_posted += [message.id]
 			update_cache(CACHE_FILE, list_posted)
 			continue
-
 		func_sender(message, destino)
-		print(f"{message_id}/{last_message_id}")
-
+		print(f"{curr}/{last}")
 		list_posted += [message.id]
 		update_cache(CACHE_FILE, list_posted)
 
-		wait_a_moment(message_id)
+		if curr!=last:wait_a_moment(curr)
 
 config_data = get_config_data(os.path.join("config.ini"))
 USER_DELAY_SECONDS = float(config_data.get("user_delay_seconds"))
@@ -528,9 +504,9 @@ parser.add_argument("--new", type=int, choices=[1, 2])
 parser.add_argument("--type")
 options = parser.parse_args()
 
-os.system("clear||cls")
-
 MODE = options.mode
+DELAY_SKIP = SKIP_DELAY_SECONDS
+NEW = options.new
 
 try:
 	client=Client('user',takeout=True)
@@ -540,18 +516,15 @@ except TakeoutInitDelay:
 except Exception as e:
 	print(f"It wasn't possible to continue due to {e}\n");exit()
 
+os.system("clear||cls")
 useraccount = ensure_connection("user")
 if MODE == "bot":
 	bot = ensure_connection("bot")
 	tg = bot
 	DELAY_AMOUNT = BOT_DELAY_SECONDS
-
 if MODE == "user":
 	tg = useraccount
 	DELAY_AMOUNT = USER_DELAY_SECONDS
-
-DELAY_SKIP = SKIP_DELAY_SECONDS
-NEW = options.new
 
 if __name__=="__main__":
 	start()
