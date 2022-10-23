@@ -16,8 +16,8 @@ def start():
 	if ORIGIN_CHAT_TITLE is False:
 		raise AttributeError("Fix the origin chat_id")
 	FILES_TYPE_EXCLUDED = []
-
 	DESTINATION_CHAT_TITLE = check_chat_id(origin_chat)
+
 	if DESTINATION_CHAT_TITLE is False:
 		raise AttributeError("Fix the destination chat_id")
 	if options.type is None:
@@ -27,26 +27,18 @@ def start():
 		FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
 
 	CACHE_FILE = get_task_file(ORIGIN_CHAT_TITLE, destino)
-	main()
 
 def ensure_connection(client_name):
 
 	if client_name == "user":
-		try:
-			useraccount = Client(client_name)
-			useraccount.start()
-			return useraccount
-		except:
-			print("Delete Session file and try again.")
-	else:
-		pass
+		useraccount = Client(client_name)
+		useraccount.start()
+		return useraccount
+
 	if client_name == "bot":
-		try:
-			bot = Client(client_name)
-			bot.start()
-			return bot
-		except:
-			print("Delete Session file and try again.")
+		bot = Client(client_name)
+		bot.start()
+		return bot
 
 def get_chats(client):
 
@@ -60,6 +52,7 @@ def get_chats(client):
 	list_ch = client.get_dialogs()
 
 	for dialog in list_ch:
+
 		channels_names = str(dialog.chat.title or dialog.chat.first_name)
 		channels_ids = int(dialog.chat.id)
 		names_ch.append(channels_names)
@@ -85,10 +78,7 @@ def get_chats(client):
 			)
 
 def get_config_data(path_file_config):
-	"""get default configuration data from file config.ini
-	Returns:
-		dict: config data
-	"""
+
 	config_file = ConfigParser()
 	config_file.read(path_file_config)
 	default_config = dict(config_file["default"])
@@ -116,7 +106,7 @@ def foward_photo(message, destino):
 
 def foward_text(message, destino):
 
-	text = message.text.markdown
+	text = message.text
 	try:
 		tg.send_message(
 			chat_id=destino,
@@ -299,7 +289,7 @@ def foward_poll(message, destino):
 def get_caption(message):
 
 	if message.caption:
-		caption = message.caption.markdown
+		caption = message.caption
 	else:
 		caption = None
 	return caption
@@ -376,12 +366,11 @@ def get_message(origin_chat, message_id):
 
 def get_list_posted(int_task_type):
 
-	# 1 = new
 	if int_task_type == 1:
 		if os.path.exists(CACHE_FILE):
 			os.remove(CACHE_FILE)
 		return []
-	else:  # 2 = resume
+	else:
 		if os.path.exists(CACHE_FILE):
 			with open(CACHE_FILE, mode="r") as file:
 				posted = json.loads(file.read())
@@ -389,13 +378,12 @@ def get_list_posted(int_task_type):
 		else:
 			return []
 
-def wait_a_moment(curr, skip=False):
+def wait_a_moment(skip=False):
 
-	if curr != 1:
-		if skip:
-			time.sleep(DELAY_SKIP)
-		else:
-			time.sleep(DELAY_AMOUNT)
+	if skip:
+		time.sleep(SKIP_DELAY_SECONDS)
+	else:
+		time.sleep(DELAY_AMOUNT)
 
 def update_cache(CACHE_FILE, list_posted):
 
@@ -428,7 +416,7 @@ def must_be_ignored(func_sender, curr, last) -> bool:
 
 	if func_sender in FILES_TYPE_EXCLUDED:
 		print(f"{curr}/{last} (skip by type)")
-		wait_a_moment(curr, skip=True)
+		wait_a_moment(skip=True)
 		return True
 	else:
 		return False
@@ -452,7 +440,7 @@ def check_chat_id(chat_id):
 		chat_obj = tg.get_chat(chat_id)
 		chat_title = chat_obj.title
 		return chat_title
-	except ChannelInvalid:  # When you are not part of the channel
+	except ChannelInvalid:
 		print("\nNon-accessible chat")
 		if MODE == "bot":
 			print(
@@ -462,7 +450,7 @@ def check_chat_id(chat_id):
 		else:
 			print("\nCheck that the user account is part of the chat.")
 		return False
-	except PeerIdInvalid:  # When the chat_id is invalid
+	except PeerIdInvalid:
 		print(f"\nInvalid chat_id: {chat_id}")
 		return False
 
@@ -473,26 +461,28 @@ def main():
 	int_task_type = NEW
 	list_posted = get_list_posted(int_task_type)
 	ids_to_try=chat_ids[len(list_posted):]
-	if LIMIT != 0: _ids_to_try=ids_to_try[:LIMIT]
-	else: _ids_to_try=ids_to_try
-	last=len(_ids_to_try)
+	if LIMIT != 0: ids_to_try=ids_to_try[:LIMIT]
+	last=len(ids_to_try)
 
-	for message_id in _ids_to_try:
+	for message_id in ids_to_try:
+
 		curr=ids_to_try.index(message_id)+1
 		message = get_message(origin_chat, message_id)
 		func_sender = get_sender(message)
+
 		if must_be_ignored(func_sender, curr, last):
 			list_posted += [message.id]
 			update_cache(CACHE_FILE, list_posted)
 			continue
+
 		func_sender(message, destino)
 		print(f"{curr}/{last}")
 		list_posted += [message.id]
 		update_cache(CACHE_FILE, list_posted)
 
-		if curr!=last:wait_a_moment(curr)
+		if curr!=last:wait_a_moment()
 
-config_data = get_config_data(os.path.join("config.ini"))
+config_data = get_config_data("config.ini")
 USER_DELAY_SECONDS = float(config_data.get("user_delay_seconds"))
 BOT_DELAY_SECONDS = float(config_data.get("bot_delay_seconds"))
 SKIP_DELAY_SECONDS = float(config_data.get("skip_delay_seconds"))
@@ -501,14 +491,13 @@ BOT_ID=config_data.get("bot_id")
 parser = argparse.ArgumentParser()
 parser.add_argument("--orig")
 parser.add_argument("--dest")
-parser.add_argument("--mode",choices=["user", "bot"])
-parser.add_argument("--new", type=int, choices=[1, 2])
-parser.add_argument("--limit")
-parser.add_argument("--type")
+parser.add_argument("-m","--mode",choices=["user", "bot"])
+parser.add_argument("-n","--new", type=int, choices=[1, 2])
+parser.add_argument("l","--limit")
+parser.add_argument("-t","--type")
 options = parser.parse_args()
 
 MODE = options.mode
-DELAY_SKIP = SKIP_DELAY_SECONDS
 NEW = options.new
 LIMIT=int(options.limit)
 
@@ -533,3 +522,4 @@ if MODE == "user":
 
 if __name__=="__main__":
 	start()
+	main()

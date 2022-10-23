@@ -11,8 +11,7 @@ Na 2º célula:
 3) Se quiser clonar em modo bot, altere o texto `PUT YOUR BOT TOKEN HERE` para o [token](https://t.me/BotFather) do seu bot;
 4) Execute a célula.
 
->Atenção! \
-Insira na caixa de diálogo que será aberta somente o seu número de telefone para realizar a autenticação 2FA. Ignore o aviso da mensagem para colocar o bot token. Segue um exemplo de como inserir o nº: 556795874621
+>Atenção: Insira na caixa de diálogo que será aberta somente o seu número de telefone para realizar a autenticação 2FA. Ignore o aviso da mensagem para colocar o bot token. Segue um exemplo de como inserir o nº: 556795874621
 
 
 ### Adicionando as flags
@@ -48,9 +47,11 @@ Insira na caixa de diálogo que será aberta somente o seu número de telefone p
 
 * Por fim, substitua os textos `NOME DO CANAL PARA CLONAR` e `NOME DO CANAL DE DESTINO` pelos nomes dos canais de origem/destino. Ou insira somente o nome do canal de origem e deixe o campo de "DEST" vazio para que o clonechat crie um novo canal automaticamente.
 
-* Digite o valor 0 para "LIMIT" se deseja encaminhar todas as mensagens do chat de origem. Se não, coloque o o número máximo de encaminhamentos desejado.
-
 >Atenção: o Telegram limita para cada usuário a criação de até 50 canais por dia. Veja mais mais sobre esse e outros limites neste [site](https://limits.tginfo.me/en). Ademais, lembre-se de inserir os nomes dos canais entre aspas simples ou duplas, conforme encontra-se no exemplo da célula.
+
+* Digite o valor 0 para "LIMIT" se deseja encaminhar todas as mensagens do chat de origem. Se não, coloque o número máximo de encaminhamentos desejado.
+
+*Se você receber o aviso: "Confirm the data export request first.", busque pela mesma notificação em que foi recebida a mensagem com o código de verificação. Logo abaixo dela haverá uma mensagem requisitando a autorização para exportar dados para permitir que o clonechat possa ler o histórico do canal a ser clonado e filtrar as mensagens úteis, tornando o processo muito mais eficiente. Então, basta selecionar a opção "Allow".*
 
 ### Notas
 
@@ -60,13 +61,13 @@ Insira na caixa de diálogo que será aberta somente o seu número de telefone p
 
 * O modo bot está disponível somente para canais em que você é um administrador.
 
-* As configurações de delay podem ser modificadas, contudo, o mínimo recomendado para a execução do clonechat em modo user é de 10 segundos. Valores menores que esse podem acarretar em banimento de sua conta permanentemente por flood.
+* As configurações de delay podem ser modificadas no arquivo `config.ini` dentro da pasta do programa. Contudo, o mínimo recomendado para a execução do clonechat em modo user é de 10 segundos. Valores menores que esse podem acarretar em banimento de sua conta permanentemente por flood.
 
 * É possível criar uma fila de canais para clonar, basta copiar a última célula e preenchê-la com os novos valores desejados para as flags. Contudo, não inicie mais de uma instância do clonechat na mesma conta e não utilize as mesmas credenciais para outras contas.
 
 * Em alguns celulares pode não ser possível realizar a etapa de autenticação com a sua conta no Telegram pelo colab, sendo necessário que seja feita, primeiramente, no navegador de uma máquina local. Outra alternativa é enviar para dentro da pasta `Clonechat-Telegram-Colab` uma sessão já salva com o arquivo `user.session`.
 
-* Caso queira utilizar o clonechat na sua máquina local, baixe-o no [repositório oficial](https://github.com/apenasrr/clonechat) e [clique aqui](https://upolar.github.io/clonechats-docs/) para ver o tutorial completo.
+* Caso queira utilizar o clonechat na sua máquina local, baixe-o no [repositório oficial](https://github.com/apenasrr/clonechat) e siga o tutorial em [texto](https://upolar.github.io/clonechats-docs/) ou em [vídeo](https://t.me/c/1623956857/16706).
 
 ### Erros frequentes
 
@@ -80,7 +81,7 @@ pyrogram.errors.exceptions.not_acceptable_406.FreshChangeAdminsForbidden: Telegr
 ```
 Causa: possivelmente já tenha sido realizada uma tarefa de clonar o mesmo canal em uma sessão diferente do pyrogram no modo bot e, por isso, a API do Telegram rejeita a nova chamada.
 
-Solução: Entre na sua conta do Telegram e siga este caminho: `Settings > Devices (or Privacy & Security > Active Sessions)`. Em "Active Sessions" desative todas as sessões ativas com o nome "TeleKrram Pyrogram". Por fim, faça refaça a etapa de autenticação.
+Solução: Entre na sua conta do Telegram e siga este caminho: `Settings > Devices (or Privacy & Security > Active Sessions)`. Em "Active Sessions" desative todas as sessões ativas com os nomes "Cpython" ou "Pyrogram". Por fim, faça refaça a etapa de autenticação.
 
 * [Método get_dialogs](https://docs.pyrogram.org/api/methods/get_dialogs#pyrogram.Client.get_dialogs)
 
@@ -89,4 +90,4 @@ AttributeError: 'NoneType' object has no attribute 'get_dialogs'
 ```
 Causas: os títulos dos chats inseridos não existem ou você não participa deles. Além disso, pode não ter sido feita a autorização para 'Data export request' no seu telegram.
 
-Solução: para o último caso, busque pela mesma notificação em que foi recebida a mensagem com o código de verificação. Logo abaixo dela deverá conter a mensagem requisitando a autorização, então, basta selecionar a opção "Allow".
+Solução: para o último caso, 

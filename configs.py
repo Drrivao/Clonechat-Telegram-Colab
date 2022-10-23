@@ -3,9 +3,9 @@ import argparse
 from os import remove
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--api_id')
-parser.add_argument('--api_hash')
-parser.add_argument('--bot_token')
+parser.add_argument('-i','--api_id')
+parser.add_argument('-s','--api_hash')
+parser.add_argument('-b','--bot_token')
 options = parser.parse_args()
 
 api_id = options.api_id
