@@ -493,7 +493,7 @@ parser.add_argument("--orig")
 parser.add_argument("--dest")
 parser.add_argument("-m","--mode",choices=["user", "bot"])
 parser.add_argument("-n","--new", type=int, choices=[1, 2])
-parser.add_argument("l","--limit")
+parser.add_argument("-l","--limit")
 parser.add_argument("-t","--type")
 options = parser.parse_args()
 

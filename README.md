@@ -45,7 +45,7 @@ Na 2º célula:
 
       LIMIT              limite de encaminhamento de mensagens
 
-* Por fim, substitua os textos `NOME DO CANAL PARA CLONAR` e `NOME DO CANAL DE DESTINO` pelos nomes dos canais de origem/destino. Ou insira somente o nome do canal de origem e deixe o campo de "DEST" vazio para que o clonechat crie um novo canal automaticamente.
+* Por fim, substitua os textos `NOME DO CANAL PARA CLONAR` e `NOME DO CANAL DE DESTINO` pelos nomes dos canais de origem/destino. Ou insira somente o nome do canal de origem e selecione a opção "auto" no campo "DEST" para que o clonechat crie um novo canal automaticamente.
 
 >Atenção: o Telegram limita para cada usuário a criação de até 50 canais por dia. Veja mais mais sobre esse e outros limites neste [site](https://limits.tginfo.me/en). Ademais, lembre-se de inserir os nomes dos canais entre aspas simples ou duplas, conforme encontra-se no exemplo da célula.
 
