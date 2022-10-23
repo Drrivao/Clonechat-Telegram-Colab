@@ -89,5 +89,3 @@ Solução: Entre na sua conta do Telegram e siga este caminho: `Settings > Devic
 AttributeError: 'NoneType' object has no attribute 'get_dialogs'
 ```
 Causas: os títulos dos chats inseridos não existem ou você não participa deles. Além disso, pode não ter sido feita a autorização para 'Data export request' no seu telegram.
-
-Solução: para o último caso, 
