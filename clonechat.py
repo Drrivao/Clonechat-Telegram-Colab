@@ -20,12 +20,9 @@ def start():
 
 	if DESTINATION_CHAT_TITLE is False:
 		raise AttributeError("Fix the destination chat_id")
-	if options.type is None:
-		pass
-	else:
-		TYPE = options.type
-		FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
 
+	TYPE = options.type
+	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
 	CACHE_FILE = get_task_file(ORIGIN_CHAT_TITLE, destino)
 
 def ensure_connection(client_name):
@@ -62,7 +59,7 @@ def get_chats(client):
 	origin_chat = ids_ch[channel_origem]
 	chat_ids=get_valid_ids(client,origin_chat)
 
-	if options.dest is None:
+	if options.dest=='auto':
 		channel_destino = client.create_channel(title=f'{names_ch[channel_origem]}-clone')
 		destino = channel_destino.id
 	else:
