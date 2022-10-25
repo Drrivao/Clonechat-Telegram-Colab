@@ -44,7 +44,7 @@ data=f"""\
 {bot_id}
 user_delay_seconds:10
 bot_delay_seconds:1.2
-skip_delay_seconds:1\
-"""
+skip_delay_seconds:1"""
+
 with open('config.ini', 'w') as f:
     f.write(data)
