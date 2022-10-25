@@ -21,7 +21,6 @@ def start():
 	if DESTINATION_CHAT_TITLE is False:
 		raise AttributeError("Fix the destination chat_id")
 
-	TYPE = options.type
 	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
 	CACHE_FILE = get_task_file(ORIGIN_CHAT_TITLE, destino)
 
@@ -391,12 +390,18 @@ def get_valid_ids(client,origin_chat):
 
 	chat_ids=[]
 	print('Getting messages...')
-	hist=client.get_chat_history(origin_chat)
-	for message in hist:
-		if message.media or message.text or message.poll:
-			chat_ids.append(message.id)
-	chat_ids.sort()
 
+	if QUERY == 'all':
+		hist=client.get_chat_history(origin_chat)
+		for message in hist:
+			if message.media or message.text or message.poll:
+				chat_ids.append(message.id)
+	else:
+		sch=client.search_messages(origin_chat, query=QUERY)
+		for message in sch:
+			chat_ids.append(message.id)
+
+	chat_ids.sort()
 	return chat_ids
 
 def get_files_type_excluded():
@@ -489,6 +494,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--orig")
 parser.add_argument("--dest")
 parser.add_argument("-m","--mode",choices=["user", "bot"])
+parser.add_argument("-q","--query")
 parser.add_argument("-n","--new", type=int, choices=[1, 2])
 parser.add_argument("-l","--limit", type=int)
 parser.add_argument("-t","--type")
@@ -497,6 +503,8 @@ options = parser.parse_args()
 MODE = options.mode
 NEW = options.new
 LIMIT=options.limit
+QUERY=options.query
+TYPE = options.type
 
 try:
 	client=Client('user',takeout=True)

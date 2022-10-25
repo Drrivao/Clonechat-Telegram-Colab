@@ -43,13 +43,17 @@ Na 2º célula:
                          8 = Vídeos
                          9 = Enquetes
 
-      LIMIT              limite de encaminhamento de mensagens
+      LIMIT              Limite de encaminhamento de mensagens
+
+      QUERY              Filtro de mensagens
 
 * Por fim, substitua os textos `NOME DO CANAL PARA CLONAR` e `NOME DO CANAL DE DESTINO` pelos nomes dos canais de origem/destino. Ou insira somente o nome do canal de origem e selecione a opção "auto" no campo "DEST" para que o clonechat crie um novo canal automaticamente.
 
 >Atenção: o Telegram limita para cada usuário a criação de até 50 canais por dia. Veja mais mais sobre esse e outros limites neste [site](https://limits.tginfo.me/en). Ademais, lembre-se de inserir os nomes dos canais entre aspas simples ou duplas, conforme encontra-se no exemplo da célula.
 
 * Digite o valor 0 para "LIMIT" se deseja encaminhar todas as mensagens do chat de origem. Se não, coloque o número máximo de encaminhamentos desejado.
+
+* Em "QUERY" coloque entre as aspas simples ou duplas um nome para filtrar as mensagens a serem encaminhadas. Por exemplo, escreva "python" para encaminhar as mensagens que contêm esse termo. Caso precise encaminhar todas as mensagens, coloque "all".
 
 *Se você receber o aviso: "Confirm the data export request first.", busque pela mesma notificação em que foi recebida a mensagem com o código de verificação. Logo abaixo dela haverá uma mensagem requisitando a autorização para exportar dados para permitir que o clonechat possa ler o histórico do canal a ser clonado e filtrar as mensagens úteis, tornando o processo muito mais eficiente. Então, basta selecionar a opção "Allow".*
 
