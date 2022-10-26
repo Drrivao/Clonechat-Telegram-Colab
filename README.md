@@ -71,7 +71,12 @@ Na 2º célula:
 
 * Em alguns celulares pode não ser possível realizar a etapa de autenticação com a sua conta no Telegram pelo colab, sendo necessário que seja feita, primeiramente, no navegador de uma máquina local. Outra alternativa é enviar para dentro da pasta `Clonechat-Telegram-Colab` uma sessão já salva com o arquivo `user.session`.
 
-* Caso queira utilizar o clonechat na sua máquina local, baixe-o no [repositório oficial](https://github.com/apenasrr/clonechat) e siga o tutorial em [texto](https://upolar.github.io/clonechats-docs/) ou em [vídeo](https://t.me/c/1623956857/16706).
+* Caso queira utilizar o programa na sua máquina local, baixe os arquivos e execute no terminal o comando `python menu.py`.
+
+### Créditos
+
+- [Repositório oficial](https://github.com/apenasrr/clonechat)
+- Tutorial em [texto](https://upolar.github.io/clonechats-docs/) do clonechat oficial
 
 ### Erros frequentes
 
