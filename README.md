@@ -71,7 +71,13 @@ Na 2º célula:
 
 * Em alguns celulares pode não ser possível realizar a etapa de autenticação com a sua conta no Telegram pelo colab, sendo necessário que seja feita, primeiramente, no navegador de uma máquina local. Outra alternativa é enviar para dentro da pasta `Clonechat-Telegram-Colab` uma sessão já salva com o arquivo `user.session`.
 
-* Caso queira utilizar o programa na sua máquina local, baixe os arquivos e execute no terminal o comando `python menu.py`.
+### Executando localmente
+
+* Caso queira utilizar o programa em seu ambiente desktop, baixe o repositório e rode no terminal o comando abaixo.
+
+```
+pip install pyrogram tgcrypto && python menu.py
+```
 
 ### Créditos
 

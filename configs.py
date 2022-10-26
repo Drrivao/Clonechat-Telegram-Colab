@@ -1,6 +1,6 @@
 from pyrogram import Client
 import argparse
-from os import remove
+from os import remove,system
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i','--api_id')
@@ -13,7 +13,6 @@ API_HASH = options.api_hash
 BOT_TOKEN=options.bot_token
 
 def ensure_connection(client_name):
-
     if client_name == "user":
         try:
             useraccount = Client(
@@ -36,6 +35,7 @@ def ensure_connection(client_name):
             remove('bot.session')
             print(f"Connection failed due to {e}.")
 
+system('clear||cls')
 useraccount = ensure_connection("user")
 
 if BOT_TOKEN != 'blank':
