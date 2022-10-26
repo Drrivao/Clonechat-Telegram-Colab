@@ -1,21 +1,16 @@
 from subprocess import run
 
 def main():
-
-    run('clear || cls',shell=True)
-    print(
-        'Tip: for optional configurations\n'+
-        'you can press enter to use default.\n\n'+
-        'Options:\n\n'+
-        '1- Start client\n2- Clone\n3- Exit'
-    )
+    print('\nOptions:\n'+
+        '\n1- Start client\n2- Clone\n3- Exit')
     inp=int(input('\nChoose one: '))
 
     if inp == 1:
         api_id=input('\napi id: ')
         api_hash=input('api hash: ')
         bot_token=input('bot token: ')
-        if bot_token is None:bot_token='blank'
+        if bot_token == '':bot_token='blank'
+        print()
         run([
             'python','configs.py','-i',api_id,'-s',api_hash,
             '-b',bot_token
@@ -46,5 +41,10 @@ def main():
     else:
         print('Invalid option. Try again.\n')
 
+run('clear || cls',shell=True)
+print(
+    'Tip: for optional configurations\n'+
+    'you can press enter to use default.'
+)
 while True:
     main()

@@ -8,40 +8,45 @@ parser.add_argument('-s','--api_hash')
 parser.add_argument('-b','--bot_token')
 options = parser.parse_args()
 
-api_id = options.api_id
-api_hash = options.api_hash
+API_ID = options.api_id
+API_HASH = options.api_hash
+BOT_TOKEN=options.bot_token
 
 def ensure_connection(client_name):
 
     if client_name == "user":
         try:
             useraccount = Client(
-                "user", api_id, api_hash
+                "user", API_ID, API_HASH
             )
-            useraccount.start();return useraccount
-        except:
-            remove('user.session');print("\nError. Try again.\n")
+            useraccount.start()
+            return useraccount
+        except Exception as e:
+            remove('user.session')
+            print(f"Connection failed due to {e}.")
     if client_name == "bot":
         try:
-            bot_token = options.bot_token
             bot = Client(
-                "bot", api_id, api_hash, bot_token=bot_token
+                "bot", API_ID, API_HASH,
+                bot_token=BOT_TOKEN
             )
-            bot.start();return bot
-        except:
-            remove('bot.session');print("\nError. Try again.\n")
+            bot.start()
+            return bot
+        except Exception as e:
+            remove('bot.session')
+            print(f"Connection failed due to {e}.")
 
 useraccount = ensure_connection("user")
-if options.bot_token != 'blank':
+
+if BOT_TOKEN != 'blank':
     bot = ensure_connection("bot")
-    BOT_TOKEN=options.bot_token
     BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
-    bot_id=f'bot_id:{BOT_ID}'
-else: bot_id=''
+    BOT_ID=f'bot_id:{BOT_ID}'
+else: BOT_ID=''
 
 data=f"""\
 [default]
-{bot_id}
+{BOT_ID}
 user_delay_seconds:10
 bot_delay_seconds:1.2
 skip_delay_seconds:1"""
