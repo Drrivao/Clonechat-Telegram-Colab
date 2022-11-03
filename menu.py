@@ -8,7 +8,7 @@ def main():
     if inp == 1:
         api_id=input('\napi id: ')
         api_hash=input('api hash: ')
-        bot_token=input('bot token: ')
+        bot_token=input('bot token (optional): ')
         if bot_token == '':bot_token='blank'
         print()
         run([
