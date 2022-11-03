@@ -54,18 +54,18 @@ def get_chats(client):
 		names_ch.append(channels_names)
 		ids_ch.append(channels_ids)
 
-	channel_origem=names_ch.index(options.orig)
+	channel_origem=names_ch.index(ORIG)
 	origin_chat = ids_ch[channel_origem]
 	chat_ids=get_valid_ids(client,origin_chat)
 
-	if options.dest=='auto':
+	if DEST=='auto':
 		channel_destino = client.create_channel(title=f'{names_ch[channel_origem]}-clone')
 		destino = channel_destino.id
 	else:
-		channel_destino=names_ch.index(options.dest)
+		channel_destino=names_ch.index(DEST)
 		destino = ids_ch[channel_destino]
 
-	if options.mode == "bot":
+	if MODE == "bot":
 		chats=[origin_chat,destino]
 		for chat in chats:
 			client.promote_chat_member(
@@ -500,6 +500,8 @@ parser.add_argument("-l","--limit", type=int)
 parser.add_argument("-t","--type")
 options = parser.parse_args()
 
+ORIG = options.orig
+DEST = options.dest
 MODE = options.mode
 NEW = options.new
 LIMIT=options.limit
