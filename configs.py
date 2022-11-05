@@ -8,48 +8,53 @@ parser.add_argument('-s','--api_hash')
 parser.add_argument('-b','--bot_token')
 options = parser.parse_args()
 
-API_ID = options.api_id
-API_HASH = options.api_hash
-BOT_TOKEN=options.bot_token
+def main(API_ID,API_HASH,BOT_TOKEN):
 
-def ensure_connection(client_name):
-    if client_name == "user":
-        try:
-            useraccount = Client(
-                "user", API_ID, API_HASH
-            )
-            useraccount.start()
-            return useraccount
-        except Exception as e:
-            remove('user.session')
-            print(f"Connection failed due to {e}.")
-    if client_name == "bot":
-        try:
-            bot = Client(
-                "bot", API_ID, API_HASH,
-                bot_token=BOT_TOKEN
-            )
-            bot.start()
-            return bot
-        except Exception as e:
-            remove('bot.session')
-            print(f"Connection failed due to {e}.")
+	system("clear||cls")
+	
+	if BOT_TOKEN is None:
+		BOT_TOKEN='blank'
 
-system('clear||cls')
-useraccount = ensure_connection("user")
+	try:
+		useraccount = Client(
+			"user", API_ID, API_HASH
+		)
+		with useraccount:
+			useraccount.send_message(
+				"me", "Message sent with **Pyrogram**!"
+			)
+			user_id=useraccount.get_users('me').id
+	except Exception as e:
+		remove('user.session')
+		print(f"Connection failed due to {e}.")
 
-if BOT_TOKEN != 'blank':
-    bot = ensure_connection("bot")
-    BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
-    BOT_ID=f'bot_id:{BOT_ID}'
-else: BOT_ID=''
+	if BOT_TOKEN != 'blank':
+		try:
+			bot = Client(
+				"bot", API_ID, API_HASH,
+				bot_token=BOT_TOKEN
+			)
+			with bot:
+				bot.send_message(
+					user_id, "Message sent with **Pyrogram**!"
+				)
+			BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
+			BOT_ID=f'bot_id:{BOT_ID}'
+		except Exception as e:
+			remove('bot.session')
+			print(f"Connection failed due to {e}.")
+	else: BOT_ID=''
 
-data=f"""\
-[default]
-{BOT_ID}
-user_delay_seconds:10
-bot_delay_seconds:1.2
-skip_delay_seconds:1"""
+	data=f"[default]\n{BOT_ID}\nuser_delay_seconds:10\n"+\
+	"bot_delay_seconds:1.2\nskip_delay_seconds:1"
+	
+	with open('config.ini', 'w') as f:
+		f.write(data)
 
-with open('config.ini', 'w') as f:
-    f.write(data)
+if __name__=="__main__":
+
+	main(
+		options.api_id,
+		options.api_hash,
+		options.bot_token
+	)
