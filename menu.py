@@ -321,25 +321,25 @@ def get_files_type_excluded_by_input(input_string):
 	if input_string == "" or "0" in input_string:
 		return files_type_excluded
 	else:
-		if "1" or "photo" not in input_string:
+		if "1" not in input_string:
 			files_type_excluded += [foward_photo]
-		elif "2" or "text" not in input_string:
+		if "2" not in input_string:
 			files_type_excluded += [foward_text]
-		elif "3" or "document" not in input_string:
+		if "3" not in input_string:
 			files_type_excluded += [foward_document]
-		elif "4" or "sticker" not in input_string:
+		if "4" not in input_string:
 			files_type_excluded += [foward_sticker]
-		elif "5" or "animation" not in input_string:
+		if "5" not in input_string:
 			files_type_excluded += [foward_animation]
-		elif "6" or "audio" not in input_string:
+		if "6" not in input_string:
 			files_type_excluded += [foward_audio]
-		elif "7" or "voice" not in input_string:
+		if "7" not in input_string:
 			files_type_excluded += [foward_voice]
-		elif "8" or "video" not in input_string:
+		if "8" not in input_string:
 			files_type_excluded += [foward_video]
-		elif "9" or "poll" not in input_string:
+		if "9" not in input_string:
 			files_type_excluded += [foward_poll]
-		else:
+		if len(files_type_excluded) == 9:
 			print("Invalid option! Try again")
 			return get_files_type_excluded_by_input(input_string)
 	return files_type_excluded
@@ -505,7 +505,7 @@ def connection(
 				useraccount.send_message(
 					"me", "Message sent with **Pyrogram**!"
 				)
-				user_id=useraccount.get_users('me').id
+			return useraccount
 		except Exception as e:
 			remove('user.session')
 			print(f"Connection failed due to {e}.")
@@ -517,10 +517,9 @@ def connection(
 			)
 			with bot:
 				bot.send_message(
-					user_id, "Message sent with **Pyrogram**!"
+					"me", "Message sent with **Pyrogram**!"
 				)
-			BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
-			BOT_ID=f'bot_id:{BOT_ID}'
+			return bot
 		except Exception as e:
 			remove('bot.session')
 			print(f"Connection failed due to {e}.")

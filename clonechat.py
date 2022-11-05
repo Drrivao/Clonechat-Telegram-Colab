@@ -1,13 +1,28 @@
-import argparse, json, os, time, re
+import argparse, json, os, time
 from configparser import ConfigParser
 from pyrogram import Client
 from pyrogram.errors import (
-	FloodWait,TakeoutInitDelay
+	ChannelInvalid, FloodWait,
+	PeerIdInvalid,TakeoutInitDelay
 )
-from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
-from os import name
-import configs
+
+def start():
+
+	global CACHE_FILE
+	global FILES_TYPE_EXCLUDED
+
+	ORIGIN_CHAT_TITLE = check_chat_id(origin_chat)
+	if ORIGIN_CHAT_TITLE is False:
+		raise AttributeError("Fix the origin chat_id")
+	FILES_TYPE_EXCLUDED = []
+	DESTINATION_CHAT_TITLE = check_chat_id(origin_chat)
+
+	if DESTINATION_CHAT_TITLE is False:
+		raise AttributeError("Fix the destination chat_id")
+
+	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
+	CACHE_FILE = get_task_file(ORIGIN_CHAT_TITLE, destino)
 
 def ensure_connection(client_name):
 
@@ -23,6 +38,7 @@ def ensure_connection(client_name):
 
 def get_chats(client):
 
+	global origin_chat
 	global channel_origem
 	global destino
 	global chat_ids
@@ -57,7 +73,12 @@ def get_chats(client):
 				ChatPrivileges(can_post_messages=True)
 			)
 
-	return origin_chat
+def get_config_data(path_file_config):
+
+	config_file = ConfigParser()
+	config_file.read(path_file_config)
+	default_config = dict(config_file["default"])
+	return default_config
 
 def foward_photo(message, destino):
 
@@ -264,8 +285,7 @@ def foward_poll(message, destino):
 def get_caption(message):
 
 	if message.caption:
-		caption = message.caption if premium\
-		is True else message.caption[:1024]
+		caption = message.caption
 	else:
 		caption = None
 	return caption
@@ -303,25 +323,25 @@ def get_files_type_excluded_by_input(input_string):
 	if input_string == "" or "0" in input_string:
 		return files_type_excluded
 	else:
-		if "1" or "photo" not in input_string:
+		if "1" not in input_string:
 			files_type_excluded += [foward_photo]
-		elif "2" or "text" not in input_string:
+		if "2" not in input_string:
 			files_type_excluded += [foward_text]
-		elif "3" or "document" not in input_string:
+		if "3" not in input_string:
 			files_type_excluded += [foward_document]
-		elif "4" or "sticker" not in input_string:
+		if "4" not in input_string:
 			files_type_excluded += [foward_sticker]
-		elif "5" or "animation" not in input_string:
+		if "5" not in input_string:
 			files_type_excluded += [foward_animation]
-		elif "6" or "audio" not in input_string:
+		if "6" not in input_string:
 			files_type_excluded += [foward_audio]
-		elif "7" or "voice" not in input_string:
+		if "7" not in input_string:
 			files_type_excluded += [foward_voice]
-		elif "8" or "video" not in input_string:
+		if "8" not in input_string:
 			files_type_excluded += [foward_video]
-		elif "9" or "poll" not in input_string:
+		if "9" not in input_string:
 			files_type_excluded += [foward_poll]
-		else:
+		if len(files_type_excluded) == 9:
 			print("Invalid option! Try again")
 			return get_files_type_excluded_by_input(input_string)
 	return files_type_excluded
@@ -340,7 +360,7 @@ def get_message(origin_chat, message_id):
 
 	return get_message(origin_chat, message_id)
 
-def get_list_posted(CACHE_FILE,int_task_type):
+def get_list_posted(int_task_type):
 
 	if int_task_type == 1:
 		if os.path.exists(CACHE_FILE):
@@ -354,12 +374,12 @@ def get_list_posted(CACHE_FILE,int_task_type):
 		else:
 			return []
 
-def wait_a_moment(delay,skip=False):
+def wait_a_moment(skip=False):
 
 	if skip:
 		time.sleep(SKIP_DELAY_SECONDS)
 	else:
-		time.sleep(delay)
+		time.sleep(DELAY_AMOUNT)
 
 def update_cache(CACHE_FILE, list_posted):
 
@@ -384,13 +404,21 @@ def get_valid_ids(client,origin_chat):
 	chat_ids.sort()
 	return chat_ids
 
-def must_be_ignored(
-	func_sender,FILES_TYPE_EXCLUDED,delay, curr, last
-) -> bool:
+def get_files_type_excluded():
+
+	global FILES_TYPE_EXCLUDED
+	try:
+		FILES_TYPE_EXCLUDED = FILES_TYPE_EXCLUDED
+		return FILES_TYPE_EXCLUDED
+	except:
+		FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input()
+		return FILES_TYPE_EXCLUDED
+
+def must_be_ignored(func_sender, curr, last) -> bool:
 
 	if func_sender in FILES_TYPE_EXCLUDED:
 		print(f"{curr}/{last} (skip by type)")
-		wait_a_moment(delay,skip=True)
+		wait_a_moment(skip=True)
 		return True
 	else:
 		return False
@@ -404,22 +432,36 @@ def get_task_file(ORIGIN_CHAT_TITLE, destino):
 
 	ensure_folder_existence("posteds")
 	ensure_folder_existence(os.path.join("posteds"))
-	if name == 'nt':
-		ORIGIN_CHAT_TITLE=re.sub(
-			r'[\W_]+', '_',ORIGIN_CHAT_TITLE
-		)
 	task_file_name = f"{ORIGIN_CHAT_TITLE}-{destino}.json"
 	task_file_path = os.path.join("posteds", task_file_name)
-
 	return task_file_path
 
-def main(origin_chat,delay):
+def check_chat_id(chat_id):
 
-	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
-	CACHE_FILE = get_task_file(ORIG, destino)
+	try:
+		chat_obj = tg.get_chat(chat_id)
+		chat_title = chat_obj.title
+		return chat_title
+	except ChannelInvalid:
+		print("\nNon-accessible chat")
+		if MODE == "bot":
+			print(
+				"\nCheck that the bot is part of the chat as an administrator."
+				+ "It is necessary for bot mode."
+			)
+		else:
+			print("\nCheck that the user account is part of the chat.")
+		return False
+	except PeerIdInvalid:
+		print(f"\nInvalid chat_id: {chat_id}")
+		return False
 
+def main():
+
+	global FILES_TYPE_EXCLUDED
+	FILES_TYPE_EXCLUDED = get_files_type_excluded()
 	int_task_type = NEW
-	list_posted = get_list_posted(CACHE_FILE,int_task_type)
+	list_posted = get_list_posted(int_task_type)
 	ids_to_try=chat_ids[len(list_posted):]
 	if LIMIT != 0: ids_to_try=ids_to_try[:LIMIT]
 	last=len(ids_to_try)
@@ -430,9 +472,7 @@ def main(origin_chat,delay):
 		message = get_message(origin_chat, message_id)
 		func_sender = get_sender(message)
 
-		if must_be_ignored(
-			func_sender,FILES_TYPE_EXCLUDED,delay, curr, last
-		):
+		if must_be_ignored(func_sender, curr, last):
 			list_posted += [message.id]
 			update_cache(CACHE_FILE, list_posted)
 			continue
@@ -442,88 +482,51 @@ def main(origin_chat,delay):
 		list_posted += [message.id]
 		update_cache(CACHE_FILE, list_posted)
 
-		if curr!=last:
-			wait_a_moment(delay)
+		if curr!=last:wait_a_moment()
 
-	print('Task completed!')
-	tg.stop()
-
-def start():
-
-	global premium,tg
-
-	try:
-		client=Client('user',takeout=True)
-		with client:
-			origin_chat=get_chats(client)
-
-		os.system("clear||cls")
-		useraccount = ensure_connection("user")
-		premium=useraccount.get_users('me').is_premium
-
-		if MODE == "bot":
-			bot = ensure_connection("bot")
-			tg = bot.set_parse_mode(ParseMode.DISABLED)
-			DELAY_AMOUNT = BOT_DELAY_SECONDS
-			
-		if MODE == "user":
-			tg = useraccount.set_parse_mode(ParseMode.DISABLED)
-			DELAY_AMOUNT = USER_DELAY_SECONDS
-
-		main(origin_chat,DELAY_AMOUNT)
-
-	except TakeoutInitDelay:
-		print('Confirm the data export request first.');exit()
-	except Exception as e:
-		print(f"It wasn't possible to continue due to {e}\n");exit()
+config_data = get_config_data("config.ini")
+USER_DELAY_SECONDS = float(config_data.get("user_delay_seconds"))
+BOT_DELAY_SECONDS = float(config_data.get("bot_delay_seconds"))
+SKIP_DELAY_SECONDS = float(config_data.get("skip_delay_seconds"))
+BOT_ID=config_data.get("bot_id")
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--orig", type=str)
-parser.add_argument("--dest", type=str)
+parser.add_argument("--orig")
+parser.add_argument("--dest")
 parser.add_argument("-m","--mode",choices=["user", "bot"])
-parser.add_argument("-q","--query", type=str)
+parser.add_argument("-q","--query")
 parser.add_argument("-n","--new", type=int, choices=[1, 2])
 parser.add_argument("-l","--limit", type=int)
-parser.add_argument("-t","--type", type=str)
-parser.add_argument('-i','--api_id', type=int)
-parser.add_argument('-s','--api_hash', type=str)
-parser.add_argument('-b','--bot_token', type=str)
+parser.add_argument("-t","--type")
 options = parser.parse_args()
 
-API_ID = options.api_id
-API_HASH = options.api_hash
-BOT_TOKEN=options.bot_token
-
-if API_ID is not None:
-    configs.main(
-        API_ID,API_HASH,BOT_TOKEN
-    )
-
 ORIG = options.orig
-if ORIG is None:print(
-	"You didn't specify the origin chat"
-);exit()
-DEST = options.dest if options.dest \
-	is not None else 'auto'
-MODE = options.mode if options.mode \
-	is not None else 'user'
-NEW = options.new if options.new \
-	is not None else 1
-LIMIT=options.limit if options.limit \
-	is not None else 0
-QUERY=options.query if options.query \
-	is not None else 'all'
-TYPE = options.type if options.type \
-	is not None else ''
+DEST = options.dest
+MODE = options.mode
+NEW = options.new
+LIMIT=options.limit
+QUERY=options.query
+TYPE = options.type
 
-config_file = ConfigParser()
-config_file.read("config.ini")
-config_data = dict(config_file["default"])
+try:
+	client=Client('user',takeout=True)
+	with client:get_chats(client)
+except TakeoutInitDelay:
+	print('Confirm the data export request first.');exit()
+except Exception as e:
+	print(f"It wasn't possible to continue due to {e}\n");exit()
 
-USER_DELAY_SECONDS = float(config_data["user_delay_seconds"])
-BOT_DELAY_SECONDS = float(config_data["bot_delay_seconds"])
-SKIP_DELAY_SECONDS = float(config_data["skip_delay_seconds"])
-BOT_ID=config_data["bot_id"]
+os.system("clear||cls")
+useraccount = ensure_connection("user")
+
+if MODE == "bot":
+	bot = ensure_connection("bot")
+	tg = bot
+	DELAY_AMOUNT = BOT_DELAY_SECONDS
+if MODE == "user":
+	tg = useraccount
+	DELAY_AMOUNT = USER_DELAY_SECONDS
 
 if __name__=="__main__":
 	start()
+	main()
