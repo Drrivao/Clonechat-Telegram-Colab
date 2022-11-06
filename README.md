@@ -28,20 +28,20 @@ Na 2º célula:
       NEW {1,2}          1 para iniciar uma nova tarefa e 2 para retomar
 
       TYPE               Listar os tipos de mensagens a serem clonadas. Ex.:
-                         para documentos e vídeos: 3,8 
+                         para documentos e vídeos: "document,video".
 
                          Opções disponíveis: 
 
-                         0 = Todos os arquivos
-                         1 = Fotos
-                         2 = Mensagens de texto
-                         3 = Documentos (pdf, zip, rar...)
-                         4 = Figurinhas (Stickers)
-                         5 = Animações
-                         6 = Arquivos de áudio (mp3)
-                         7 = Mensagens de voz
-                         8 = Vídeos
-                         9 = Enquetes
+                         - all types (todos os tipos)
+                         - photo (foto)
+                         - text (mensagem de texto)
+                         - document (documento)
+                         - stickers (figurinha)
+                         - animations (GIF)
+                         - audio (mp3)
+                         - voice (mensagem de voz)
+                         - video (vídeo)
+                         - poll (enquete)
 
       LIMIT              Limite de encaminhamento de mensagens
 
@@ -71,18 +71,38 @@ Na 2º célula:
 
 * Em alguns celulares pode não ser possível realizar a etapa de autenticação com a sua conta no Telegram pelo colab, sendo necessário que seja feita, primeiramente, no navegador de uma máquina local. Outra alternativa é enviar para dentro da pasta `Clonechat-Telegram-Colab` uma sessão já salva com o arquivo `user.session`.
 
-### Executando localmente
+### Executando localmente (menu)
 
-* Caso queira utilizar o programa em seu ambiente desktop, baixe o repositório e rode no terminal o comando abaixo.
+1) Instale as dependências com o comando:
 
 ```
-pip install pyrogram tgcrypto && python menu.py
+pip install pyrogram tgcrypto
+```
+2) Inicie o programa:
+
+```
+python clonechat.py --menu
 ```
 
-### Créditos
+### Executando localmente (CLI)
 
-- [Repositório oficial](https://github.com/apenasrr/clonechat)
-- Tutorial em [texto](https://upolar.github.io/clonechats-docs/) do clonechat oficial
+1) Instale as dependências com o comando:
+
+```
+pip install pyrogram tgcrypto
+```
+
+3) Faça a autenticação:
+
+```
+python clonechat.py -i "API ID" -s "API HASH" -b "BOT TOKEN"
+```
+
+4) Inicie a clonagem:
+
+```
+python clonechat.py --orig "NOME DO CANAL PARA CLONAR"
+```
 
 ### Erros frequentes
 
@@ -104,3 +124,8 @@ Solução: Entre na sua conta do Telegram e siga este caminho: `Settings > Devic
 AttributeError: 'NoneType' object has no attribute 'get_dialogs'
 ```
 Causas: os títulos dos chats inseridos não existem ou você não participa deles. Além disso, pode não ter sido feita a autorização para 'Data export request' no seu telegram.
+
+### Créditos
+
+- [Repositório oficial](https://github.com/apenasrr/clonechat)
+- Tutorial em [texto](https://upolar.github.io/clonechats-docs/) do clonechat oficial

@@ -1,28 +1,16 @@
-import argparse, json, os, time
+import json, os, time,re
+from sys import stdout
 from configparser import ConfigParser
 from pyrogram import Client
-from pyrogram.errors import (
-	ChannelInvalid, FloodWait,
-	PeerIdInvalid,TakeoutInitDelay
-)
+from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
-
-def start():
-
-	global CACHE_FILE
-	global FILES_TYPE_EXCLUDED
-
-	ORIGIN_CHAT_TITLE = check_chat_id(origin_chat)
-	if ORIGIN_CHAT_TITLE is False:
-		raise AttributeError("Fix the origin chat_id")
-	FILES_TYPE_EXCLUDED = []
-	DESTINATION_CHAT_TITLE = check_chat_id(origin_chat)
-
-	if DESTINATION_CHAT_TITLE is False:
-		raise AttributeError("Fix the destination chat_id")
-
-	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
-	CACHE_FILE = get_task_file(ORIGIN_CHAT_TITLE, destino)
+from pyrogram.errors import (
+	FloodWait,TakeoutInitDelay
+)
+from argparse import (
+	ArgumentParser,BooleanOptionalAction
+)
+from os import remove,system,name
 
 def ensure_connection(client_name):
 
@@ -36,9 +24,12 @@ def ensure_connection(client_name):
 		bot.start()
 		return bot
 
-def get_chats(client):
+def get_chats(
+	client,ORIG,
+	DEST,MODE,
+	BOT_ID,QUERY
+):
 
-	global origin_chat
 	global channel_origem
 	global destino
 	global chat_ids
@@ -49,17 +40,21 @@ def get_chats(client):
 
 	for dialog in list_ch:
 
-		channels_names = str(dialog.chat.title or dialog.chat.first_name)
+		channels_names = str(
+			dialog.chat.title or dialog.chat.first_name
+		)
 		channels_ids = int(dialog.chat.id)
 		names_ch.append(channels_names)
 		ids_ch.append(channels_ids)
 
 	channel_origem=names_ch.index(ORIG)
 	origin_chat = ids_ch[channel_origem]
-	chat_ids=get_valid_ids(client,origin_chat)
+	chat_ids=get_valid_ids(client,origin_chat,QUERY)
 
 	if DEST=='auto':
-		channel_destino = client.create_channel(title=f'{names_ch[channel_origem]}-clone')
+		channel_destino = client.create_channel(
+			title=f'{names_ch[channel_origem]}-clone'
+		)
 		destino = channel_destino.id
 	else:
 		channel_destino=names_ch.index(DEST)
@@ -72,6 +67,7 @@ def get_chats(client):
 				chat,BOT_ID,
 				ChatPrivileges(can_post_messages=True)
 			)
+	return origin_chat
 
 def get_config_data(path_file_config):
 
@@ -267,7 +263,9 @@ def foward_poll(message, destino):
 		tg.send_poll(
 			chat_id=destino,
 			question=message.poll.question,
-			options=[option.text for option in message.poll.options],
+			options=[
+				option.text for option in message.poll.options
+			],
 			is_anonymous=message.poll.is_anonymous,
 			allows_multiple_answers=message.poll.allows_multiple_answers,
 			disable_notification=True,
@@ -285,7 +283,8 @@ def foward_poll(message, destino):
 def get_caption(message):
 
 	if message.caption:
-		caption = message.caption
+		caption = message.caption if premium\
+		is True else message.caption[:1024]
 	else:
 		caption = None
 	return caption
@@ -320,26 +319,26 @@ def get_sender(message):
 def get_files_type_excluded_by_input(input_string):
 
 	files_type_excluded = []
-	if input_string == "" or "0" in input_string:
+	if input_string == "all types" or "0" in input_string:
 		return files_type_excluded
 	else:
-		if "1" not in input_string:
+		if "photo" not in input_string:
 			files_type_excluded += [foward_photo]
-		if "2" not in input_string:
+		if "text" not in input_string:
 			files_type_excluded += [foward_text]
-		if "3" not in input_string:
+		if "document" not in input_string:
 			files_type_excluded += [foward_document]
-		if "4" not in input_string:
+		if "sticker" not in input_string:
 			files_type_excluded += [foward_sticker]
-		if "5" not in input_string:
+		if "animation" not in input_string:
 			files_type_excluded += [foward_animation]
-		if "6" not in input_string:
+		if "audio" not in input_string:
 			files_type_excluded += [foward_audio]
-		if "7" not in input_string:
+		if "voice" not in input_string:
 			files_type_excluded += [foward_voice]
-		if "8" not in input_string:
+		if "video" not in input_string:
 			files_type_excluded += [foward_video]
-		if "9" not in input_string:
+		if "poll" not in input_string:
 			files_type_excluded += [foward_poll]
 		if len(files_type_excluded) == 9:
 			print("Invalid option! Try again")
@@ -360,7 +359,7 @@ def get_message(origin_chat, message_id):
 
 	return get_message(origin_chat, message_id)
 
-def get_list_posted(int_task_type):
+def get_list_posted(CACHE_FILE,int_task_type):
 
 	if int_task_type == 1:
 		if os.path.exists(CACHE_FILE):
@@ -386,7 +385,7 @@ def update_cache(CACHE_FILE, list_posted):
 	with open(CACHE_FILE, mode="w") as file:
 		file.write(json.dumps(list_posted))
 
-def get_valid_ids(client,origin_chat):
+def get_valid_ids(client,origin_chat,QUERY):
 
 	chat_ids=[]
 	print('Getting messages...')
@@ -404,20 +403,9 @@ def get_valid_ids(client,origin_chat):
 	chat_ids.sort()
 	return chat_ids
 
-def get_files_type_excluded():
-
-	global FILES_TYPE_EXCLUDED
-	try:
-		FILES_TYPE_EXCLUDED = FILES_TYPE_EXCLUDED
-		return FILES_TYPE_EXCLUDED
-	except:
-		FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input()
-		return FILES_TYPE_EXCLUDED
-
-def must_be_ignored(func_sender, curr, last) -> bool:
+def must_be_ignored(func_sender,FILES_TYPE_EXCLUDED) -> bool:
 
 	if func_sender in FILES_TYPE_EXCLUDED:
-		print(f"{curr}/{last} (skip by type)")
 		wait_a_moment(skip=True)
 		return True
 	else:
@@ -432,101 +420,269 @@ def get_task_file(ORIGIN_CHAT_TITLE, destino):
 
 	ensure_folder_existence("posteds")
 	ensure_folder_existence(os.path.join("posteds"))
+	if name == 'nt':
+		ORIGIN_CHAT_TITLE=re.sub(
+			r'[\W_]+', '_',ORIGIN_CHAT_TITLE
+		)
 	task_file_name = f"{ORIGIN_CHAT_TITLE}-{destino}.json"
 	task_file_path = os.path.join("posteds", task_file_name)
+
 	return task_file_path
 
-def check_chat_id(chat_id):
+def progressbar(it, prefix="", size=60, out=stdout):
 
-	try:
-		chat_obj = tg.get_chat(chat_id)
-		chat_title = chat_obj.title
-		return chat_title
-	except ChannelInvalid:
-		print("\nNon-accessible chat")
-		if MODE == "bot":
-			print(
-				"\nCheck that the bot is part of the chat as an administrator."
-				+ "It is necessary for bot mode."
-			)
-		else:
-			print("\nCheck that the user account is part of the chat.")
-		return False
-	except PeerIdInvalid:
-		print(f"\nInvalid chat_id: {chat_id}")
-		return False
+	count = len(it)
+	def show(j):
+		x = int(size*j/count)
+		print(
+			f"{prefix}[{u'#'*x}{('.'*(size-x))}] {j}/{count}",
+			end='\r', file=out, flush=True
+		)
+	show(0)
+	for i, item in enumerate(it):
+		yield item
+		show(i+1)
+	print("\n", flush=True, file=out)
 
-def main():
+def start(
+	orig_title,origin_chat_id,
+	NEW,LIMIT,TYPE
+):
 
-	global FILES_TYPE_EXCLUDED
-	FILES_TYPE_EXCLUDED = get_files_type_excluded()
+	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
+	CACHE_FILE = get_task_file(orig_title, destino)
+
 	int_task_type = NEW
-	list_posted = get_list_posted(int_task_type)
+	list_posted = get_list_posted(CACHE_FILE,int_task_type)
 	ids_to_try=chat_ids[len(list_posted):]
 	if LIMIT != 0: ids_to_try=ids_to_try[:LIMIT]
 	last=len(ids_to_try)
 
-	for message_id in ids_to_try:
+	for i in progressbar(range(last), "Cloning: ", 40):
 
-		curr=ids_to_try.index(message_id)+1
-		message = get_message(origin_chat, message_id)
+		message_id=ids_to_try[i]
+		message = get_message(origin_chat_id, message_id)
 		func_sender = get_sender(message)
 
-		if must_be_ignored(func_sender, curr, last):
+		if must_be_ignored(func_sender,FILES_TYPE_EXCLUDED):
 			list_posted += [message.id]
 			update_cache(CACHE_FILE, list_posted)
 			continue
 
 		func_sender(message, destino)
-		print(f"{curr}/{last}")
 		list_posted += [message.id]
 		update_cache(CACHE_FILE, list_posted)
 
-		if curr!=last:wait_a_moment()
+		if i!=last:
+			wait_a_moment()
 
-config_data = get_config_data("config.ini")
-USER_DELAY_SECONDS = float(config_data.get("user_delay_seconds"))
-BOT_DELAY_SECONDS = float(config_data.get("bot_delay_seconds"))
-SKIP_DELAY_SECONDS = float(config_data.get("skip_delay_seconds"))
-BOT_ID=config_data.get("bot_id")
+	print('Task completed!')
+	tg.stop()
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--orig")
-parser.add_argument("--dest")
+def ensure_connection(client_name):
+
+	if client_name == "user":
+		useraccount = Client(client_name)
+		useraccount.start()
+		return useraccount
+
+	if client_name == "bot":
+		bot = Client(client_name)
+		bot.start()
+		return bot
+
+def main(
+	orig,dest,type,mode,
+	new,query,limit
+):
+
+	global SKIP_DELAY_SECONDS
+	global DELAY_AMOUNT
+	global tg,premium
+
+	config_data = get_config_data("config.ini")
+	USER_DELAY_SECONDS=float(config_data.get("user_delay_seconds"))
+	BOT_DELAY_SECONDS=float(config_data.get("bot_delay_seconds"))
+	SKIP_DELAY_SECONDS=float(config_data.get("skip_delay_seconds"))
+	BOT_ID=config_data.get("bot_id")
+
+	try:
+		client=Client('user',takeout=True)
+		with client:
+			origin_chat=get_chats(
+				client,orig,dest,mode,BOT_ID,query
+			)
+		useraccount = ensure_connection("user")
+		premium=useraccount.get_users('me').is_premium
+		if mode == "bot":
+			bot = ensure_connection("bot")
+			bot.set_parse_mode(ParseMode.DISABLED)
+			tg = bot
+			DELAY_AMOUNT = BOT_DELAY_SECONDS
+		else:
+			useraccount.set_parse_mode(ParseMode.DISABLED)
+			tg = useraccount
+			DELAY_AMOUNT = USER_DELAY_SECONDS
+
+		system('clear || cls')
+		start(
+			orig,origin_chat,int(new),
+			int(limit),type
+		)
+	except TakeoutInitDelay:
+		print(
+			'Confirm the data export request first.'
+		)
+		exit()
+	except Exception as e:
+		print(
+			f"It wasn't possible to continue due to {e}\n"
+		)
+		exit()
+
+def connect_to_api(
+	API_ID,API_HASH,BOT_TOKEN
+):
+	system("clear||cls")
+	try:
+		useraccount = Client(
+			"user", API_ID, API_HASH
+		)
+		with useraccount:
+			useraccount.send_message(
+				"me", "Message sent with **Pyrogram**!"
+			)
+			user_id=useraccount.get_users('me').id
+	except Exception as e:
+		remove('user.session')
+		print(f"Connection failed due to {e}.")
+
+	if BOT_TOKEN !="":
+		try:
+			bot = Client(
+				"bot", API_ID, API_HASH,
+				bot_token=BOT_TOKEN
+			)
+			with bot:
+				bot.send_message(
+					user_id, "Message sent with **Pyrogram**!"
+				)
+			BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
+			BOT_ID=f'bot_id:{BOT_ID}'
+		except Exception as e:
+			remove('bot.session')
+			print(f"Connection failed due to {e}.")
+	else: BOT_ID=''
+
+	data=f"[default]\n{BOT_ID}\nuser_delay_seconds:10\n"+\
+	"bot_delay_seconds:1.2\nskip_delay_seconds:1"
+	
+	with open('config.ini', 'w') as f:
+		f.write(data)
+
+def menu():
+
+	print('\nOptions:\n'+
+		'1- Start client\n2- Clone\n3- Exit')
+	inp=int(input('\nChoose one: '))
+
+	if inp == 1:
+
+		system('clear || cls')
+		api_id=input('api id: ')
+		api_hash=input('api hash: ')
+		bot_token=input('bot token (optional): ')
+
+		connect_to_api(
+			api_id,api_hash,bot_token
+		)
+		system('clear || cls')
+
+	elif inp == 2:
+
+		system('clear || cls')
+		orig=input('Origin chat title: ')
+		dest=input('Destination chat title (optional): ')
+		type=input('Type (optional): ')
+		mode=input('Mode (optional): ')
+		new=input('New (optional): ')
+		query=input('Query (optional): ')
+		limit=input('Limit (optional): ')
+		system('clear || cls')
+
+		if dest == '':dest='auto'
+		if type == '': type='0'
+		if mode == '': mode='user'
+		if new == '': new=1
+		if query == '':query='all'
+		if limit == '': limit=0
+
+		main(
+			orig,dest,type,mode,
+			new,query,limit
+		)
+
+	elif inp == 3:
+		exit()
+	else:
+		print('Invalid option. Try again.\n')
+
+def cli():
+
+	API_ID = options.api_id
+	API_HASH = options.api_hash
+	BOT_TOKEN=options.bot_token
+
+	if API_ID is not None:
+		connect_to_api(
+			API_ID,API_HASH,BOT_TOKEN
+		)
+
+	ORIG = options.orig
+	if ORIG is None:print(
+		"You didn't specify the origin chat"
+	);exit()
+	DEST = options.dest if options.dest \
+		is not None else 'auto'
+	MODE = options.mode if options.mode \
+		is not None else 'user'
+	NEW = options.new if options.new \
+		is not None else 1
+	LIMIT=options.limit if options.limit \
+		is not None else 0
+	QUERY=options.query if options.query \
+		is not None else 'all'
+	TYPE = options.type if options.type \
+		is not None else '0'
+
+	main(
+		ORIG,DEST,TYPE,MODE,
+		NEW,QUERY,LIMIT
+	)
+
+parser = ArgumentParser()
+parser.add_argument("-o","--orig", type=str)
+parser.add_argument("-d","--dest", type=str)
+parser.add_argument('--menu', action=BooleanOptionalAction)
 parser.add_argument("-m","--mode",choices=["user", "bot"])
-parser.add_argument("-q","--query")
+parser.add_argument("-q","--query", type=str)
 parser.add_argument("-n","--new", type=int, choices=[1, 2])
 parser.add_argument("-l","--limit", type=int)
-parser.add_argument("-t","--type")
+parser.add_argument("-t","--type", type=str)
+parser.add_argument('-i','--api-id', type=int)
+parser.add_argument('-s','--api-hash', type=str)
+parser.add_argument('-b','--bot-token', type=str)
 options = parser.parse_args()
 
-ORIG = options.orig
-DEST = options.dest
-MODE = options.mode
-NEW = options.new
-LIMIT=options.limit
-QUERY=options.query
-TYPE = options.type
-
-try:
-	client=Client('user',takeout=True)
-	with client:get_chats(client)
-except TakeoutInitDelay:
-	print('Confirm the data export request first.');exit()
-except Exception as e:
-	print(f"It wasn't possible to continue due to {e}\n");exit()
-
-os.system("clear||cls")
-useraccount = ensure_connection("user")
-
-if MODE == "bot":
-	bot = ensure_connection("bot")
-	tg = bot
-	DELAY_AMOUNT = BOT_DELAY_SECONDS
-if MODE == "user":
-	tg = useraccount
-	DELAY_AMOUNT = USER_DELAY_SECONDS
-
 if __name__=="__main__":
-	start()
-	main()
+
+	system('clear || cls')
+	if options.menu:
+		print(
+			'Tip: for optional configurations\n'+
+			'you can press enter to use default.'
+		)
+		while True:
+			menu()
+	else:
+		cli()
