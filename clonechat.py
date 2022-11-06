@@ -557,7 +557,7 @@ def connect_to_api(
 		remove('user.session')
 		print(f"Connection failed due to {e}.")
 
-	if BOT_TOKEN is not None:
+	if BOT_TOKEN !="":
 		try:
 			bot = Client(
 				"bot", API_ID, API_HASH,
