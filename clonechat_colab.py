@@ -6,8 +6,8 @@ from pyrogram.errors import (
 )
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
-from os import name
 from argparse import ArgumentParser,BooleanOptionalAction
+from os import name
 
 def config_data():
 	
@@ -373,14 +373,14 @@ def get_list_posted(CACHE_FILE,int_task_type):
 		else:
 			return []
 
-def wait_a_moment(delay,skip=False):
+def wait_a_moment(skip=False):
 
 	if skip:
 		time.sleep(
 			config_data()["SKIP_DELAY_SECONDS"]
 		)
 	else:
-		time.sleep(delay)
+		time.sleep(DELAY_AMOUNT)
 
 def update_cache(CACHE_FILE, list_posted):
 
@@ -406,12 +406,12 @@ def get_valid_ids(client,origin_chat):
 	return chat_ids
 
 def must_be_ignored(
-	func_sender,FILES_TYPE_EXCLUDED,delay, curr, last
+	func_sender,FILES_TYPE_EXCLUDED,curr, last
 ) -> bool:
 
 	if func_sender in FILES_TYPE_EXCLUDED:
 		print(f"{curr}/{last} (skip by type)")
-		wait_a_moment(delay,skip=True)
+		wait_a_moment(skip=True)
 		return True
 	else:
 		return False
@@ -434,7 +434,7 @@ def get_task_file(ORIGIN_CHAT_TITLE, destino):
 
 	return task_file_path
 
-def main(origin_chat,delay):
+def main(origin_chat):
 
 	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
 	CACHE_FILE = get_task_file(ORIG, destino)
@@ -452,7 +452,7 @@ def main(origin_chat,delay):
 		func_sender = get_sender(message)
 
 		if must_be_ignored(
-			func_sender,FILES_TYPE_EXCLUDED,delay, curr, last
+			func_sender,FILES_TYPE_EXCLUDED, curr, last
 		):
 			list_posted += [message.id]
 			update_cache(CACHE_FILE, list_posted)
@@ -464,19 +464,20 @@ def main(origin_chat,delay):
 		update_cache(CACHE_FILE, list_posted)
 
 		if curr!=last:
-			wait_a_moment(delay)
+			wait_a_moment()
 
 	print('Task completed!')
 	tg.stop()
 
 def start():
 
+	global DELAY_AMOUNT
 	global premium,tg
 
 	try:
 		client=Client('user',takeout=True)
 		with client:
-			origin_chat=get_chats(client)
+			origin_chat_id=get_chats(client)
 
 		os.system("clear||cls")
 		useraccount = ensure_connection("user")
@@ -484,14 +485,15 @@ def start():
 
 		if MODE == "bot":
 			bot = ensure_connection("bot")
-			tg = bot.set_parse_mode(ParseMode.DISABLED)
+			bot.set_parse_mode(ParseMode.DISABLED)
+			tg = bot
 			DELAY_AMOUNT = config_data()["BOT_DELAY_SECONDS"]
-			
-		if MODE == "user":
-			tg = useraccount.set_parse_mode(ParseMode.DISABLED)
+		else:
+			useraccount.set_parse_mode(ParseMode.DISABLED)
+			tg = useraccount
 			DELAY_AMOUNT = config_data()["USER_DELAY_SECONDS"]
 
-		main(origin_chat,DELAY_AMOUNT)
+		main(origin_chat_id)
 
 	except TakeoutInitDelay:
 		print('Confirm the data export request first.');exit()
@@ -538,8 +540,8 @@ def connect_to_api(API_ID,API_HASH,BOT_TOKEN):
 		f.write(data)
 
 parser = ArgumentParser()
-parser.add_argument("--orig", type=str)
-parser.add_argument("--dest", type=str)
+parser.add_argument("-o","--orig", type=str)
+parser.add_argument("-d","--dest", type=str)
 parser.add_argument('--auth', action=BooleanOptionalAction)
 parser.add_argument("-m","--mode",choices=["user", "bot"])
 parser.add_argument("-q","--query", type=str)

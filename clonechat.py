@@ -2,6 +2,7 @@ import json, os, time,re
 from sys import stdout
 from configparser import ConfigParser
 from pyrogram import Client
+from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
 from pyrogram.errors import (
 	FloodWait,TakeoutInitDelay
@@ -515,9 +516,11 @@ def main(
 		premium=useraccount.get_users('me').is_premium
 		if mode == "bot":
 			bot = ensure_connection("bot")
+			bot.set_parse_mode(ParseMode.DISABLED)
 			tg = bot
 			DELAY_AMOUNT = BOT_DELAY_SECONDS
 		else:
+			useraccount.set_parse_mode(ParseMode.DISABLED)
 			tg = useraccount
 			DELAY_AMOUNT = USER_DELAY_SECONDS
 
