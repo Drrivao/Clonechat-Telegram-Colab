@@ -8,25 +8,6 @@ from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
 from argparse import ArgumentParser
 
-def config_data():
-	
-	config_data = ConfigParser()
-	config_data.read("config.ini")
-	config_data = dict(config_data["default"])
-
-	USER_DELAY_SECONDS = float(config_data["user_delay_seconds"])
-	BOT_DELAY_SECONDS = float(config_data["bot_delay_seconds"])
-	SKIP_DELAY_SECONDS = float(config_data["skip_delay_seconds"])
-	BOT_ID=config_data["bot_id"]
-
-	values={
-		"USER_DELAY_SECONDS":USER_DELAY_SECONDS,
-		"BOT_DELAY_SECONDS":BOT_DELAY_SECONDS,
-		"SKIP_DELAY_SECONDS":SKIP_DELAY_SECONDS,
-		"BOT_ID":BOT_ID,
-	}
-	return values
-
 def ensure_connection(client_name):
 
 	if client_name == "user":
@@ -71,7 +52,7 @@ def get_chats(client):
 		chats=[origin_chat,destino]
 		for chat in chats:
 			client.promote_chat_member(
-				chat,config_data()["BOT_ID"],
+				chat,config_data["bot_id"],
 				ChatPrivileges(can_post_messages=True)
 			)
 
@@ -377,7 +358,7 @@ def wait_a_moment(skip=False):
 
 	if skip:
 		time.sleep(
-			config_data()["SKIP_DELAY_SECONDS"]
+			SKIP_DELAY_SECONDS
 		)
 	else:
 		time.sleep(DELAY_AMOUNT)
@@ -483,11 +464,11 @@ def start():
 			bot = ensure_connection("bot")
 			bot.set_parse_mode(ParseMode.DISABLED)
 			tg = bot
-			DELAY_AMOUNT = config_data()["BOT_DELAY_SECONDS"]
+			DELAY_AMOUNT = BOT_DELAY_SECONDS
 		else:
 			useraccount.set_parse_mode(ParseMode.DISABLED)
 			tg = useraccount
-			DELAY_AMOUNT = config_data()["USER_DELAY_SECONDS"]
+			DELAY_AMOUNT = USER_DELAY_SECONDS
 		main(origin_chat_id)
 
 	except TakeoutInitDelay:
@@ -557,6 +538,14 @@ NEW = options.new
 LIMIT=options.limit
 QUERY=options.query
 TYPE = options.type
+
+config_data = ConfigParser()
+config_data.read("config.ini")
+config_data = dict(config_data["default"])
+
+USER_DELAY_SECONDS = float(config_data["user_delay_seconds"])
+BOT_DELAY_SECONDS = float(config_data["bot_delay_seconds"])
+SKIP_DELAY_SECONDS = float(config_data["skip_delay_seconds"])
 
 if __name__=="__main__":
 
