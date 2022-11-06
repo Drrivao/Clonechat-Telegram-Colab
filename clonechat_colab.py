@@ -1,4 +1,4 @@
-import json, os, time, re
+import json, os, time
 from configparser import ConfigParser
 from pyrogram import Client
 from pyrogram.errors import (
@@ -7,7 +7,6 @@ from pyrogram.errors import (
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
 from argparse import ArgumentParser
-from os import name
 
 def config_data():
 	
@@ -343,6 +342,7 @@ def get_files_type_excluded_by_input(input_string):
 		if len(files_type_excluded) == 9:
 			print("Invalid option! Try again")
 			return get_files_type_excluded_by_input(input_string)
+			
 	return files_type_excluded
 
 def get_message(origin_chat, message_id):
@@ -425,10 +425,6 @@ def get_task_file(ORIGIN_CHAT_TITLE, destino):
 
 	ensure_folder_existence("posteds")
 	ensure_folder_existence(os.path.join("posteds"))
-	if name == 'nt':
-		ORIGIN_CHAT_TITLE=re.sub(
-			r'[\W_]+', '_',ORIGIN_CHAT_TITLE
-		)
 	task_file_name = f"{ORIGIN_CHAT_TITLE}-{destino}.json"
 	task_file_path = os.path.join("posteds", task_file_name)
 
@@ -492,7 +488,6 @@ def start():
 			useraccount.set_parse_mode(ParseMode.DISABLED)
 			tg = useraccount
 			DELAY_AMOUNT = config_data()["USER_DELAY_SECONDS"]
-
 		main(origin_chat_id)
 
 	except TakeoutInitDelay:
