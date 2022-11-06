@@ -445,8 +445,8 @@ def progressbar(it, prefix="", size=60, out=stdout):
 	print("\n", flush=True, file=out)
 
 def start(
-	orig_title,origin_chat_id,NEW,
-	LIMIT,TYPE
+	orig_title,origin_chat_id,
+	NEW,LIMIT,TYPE
 ):
 
 	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)

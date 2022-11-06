@@ -6,7 +6,7 @@ from pyrogram.errors import (
 )
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
-from argparse import ArgumentParser,BooleanOptionalAction
+from argparse import ArgumentParser
 from os import name
 
 def config_data():
@@ -542,7 +542,9 @@ def connect_to_api(API_ID,API_HASH,BOT_TOKEN):
 parser = ArgumentParser()
 parser.add_argument("-o","--orig", type=str)
 parser.add_argument("-d","--dest", type=str)
-parser.add_argument('--auth', action=BooleanOptionalAction)
+parser.add_argument('--auth', action='store_true')
+parser.add_argument('--no-auth', dest='auth', action='store_false')
+parser.set_defaults(auth=True)
 parser.add_argument("-m","--mode",choices=["user", "bot"])
 parser.add_argument("-q","--query", type=str)
 parser.add_argument("-n","--new", type=int, choices=[1, 2])
