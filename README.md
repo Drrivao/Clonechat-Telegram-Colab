@@ -1,8 +1,8 @@
 # Clonechat Telegram Colab
 
-Para utilizar o [clonechat no colab](https://colab.research.google.com/github/Drrivao/Clonechat-Telegram-Colab/blob/master/Clonechat_Telegram_Colab.ipynb), execute a 1º célula clicando ou apertando no símbolo de "play" do lado esquerdo dela e siga as instruções abaixo.
+Abra o [notebook](https://colab.research.google.com/github/Drrivao/Clonechat-Telegram-Colab/blob/master/Clonechat_Telegram_Colab.ipynb) e na barra superior procure pelo atalho "Arquivo" e depois selecione "Salvar uma cópia no drive". Em seguida, uma nova aba será aberta para editar a cópia do notebook salva no seu drive pessoal. Por fim, execute a primeira célula.
 
-### Inserindo credenciais e configurando o modo bot
+### Inserindo credenciais
 
 Na 2º célula:
 
@@ -58,6 +58,8 @@ Na 2º célula:
 *Se você receber o aviso: "Confirm the data export request first.", busque pela mesma notificação em que foi recebida a mensagem com o código de verificação. Logo abaixo dela haverá uma mensagem requisitando a autorização para exportar dados para permitir que o clonechat possa ler o histórico do canal a ser clonado e filtrar as mensagens úteis, tornando o processo muito mais eficiente. Então, basta selecionar a opção "Allow".*
 
 ### Notas
+
+* Sempre que quiser utilizar o clonechat novamente no colab, abra o seu drive e procure pela pasta "Colab Notebooks". Então dê um duplo clique sobre o arquivo "Clonechat Telegram Colab.ipynb" ou clique nele com o botão direito do mouse e, em "Abrir com", selecione "Google Colaboratory".
 
 * Vale ressaltar que o colab possui uma [cota](https://research.google.com/colaboratory/faq.html#idle-timeouts) por tempo de atividade. Sendo necessário, portanto, salvar os seus arquivos do clonechat em algum local de armazenamento fora dele. Por isso, esses são salvos dentro de uma pasta chamada `Clonechat-Telegram-Colab` no seu Google Drive.
 

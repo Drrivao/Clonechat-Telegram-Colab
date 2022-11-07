@@ -572,7 +572,7 @@ def connect_to_api(
 		except Exception as e:
 			remove('bot.session')
 			print(f"Connection failed due to {e}.")
-	else: BOT_ID=''
+	else: BOT_ID='bot_id:'
 
 	data=f"[default]\n{BOT_ID}\nuser_delay_seconds:10\n"+\
 	"bot_delay_seconds:1.2\nskip_delay_seconds:1"
