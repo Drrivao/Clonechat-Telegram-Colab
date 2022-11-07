@@ -448,7 +448,6 @@ def start(
 	orig_title,origin_chat_id,
 	NEW,LIMIT,TYPE
 ):
-
 	FILES_TYPE_EXCLUDED = get_files_type_excluded_by_input(TYPE)
 	CACHE_FILE = get_task_file(orig_title, destino)
 
@@ -544,6 +543,7 @@ def connect_to_api(
 	API_ID,API_HASH,BOT_TOKEN
 ):
 	system("clear||cls")
+
 	try:
 		useraccount = Client(
 			"user", API_ID, API_HASH
@@ -557,7 +557,7 @@ def connect_to_api(
 		remove('user.session')
 		print(f"Connection failed due to {e}.")
 
-	if BOT_TOKEN !="":
+	if BOT_TOKEN is not None:
 		try:
 			bot = Client(
 				"bot", API_ID, API_HASH,
@@ -592,7 +592,7 @@ def menu():
 		api_id=input('api id: ')
 		api_hash=input('api hash: ')
 		bot_token=input('bot token (optional): ')
-
+		if bot_token =="":bot_token=None
 		connect_to_api(
 			api_id,api_hash,bot_token
 		)

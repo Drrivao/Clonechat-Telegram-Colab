@@ -11,8 +11,7 @@ Na 2º célula:
 3) Se quiser clonar em modo bot, altere o texto `PUT YOUR BOT TOKEN HERE` para o [token](https://t.me/BotFather) do seu bot;
 4) Execute a célula.
 
->Atenção: Insira na caixa de diálogo que será aberta somente o seu número de telefone para realizar a autenticação 2FA. Ignore o aviso da mensagem para colocar o bot token. Segue um exemplo de como inserir o nº: 556795874621
-
+>Atenção: Insira na caixa de diálogo que será aberta somente o seu número de telefone para realizar a autenticação 2FA. Ignore o aviso da mensagem para colocar o "bot token". Segue um exemplo de como inserir o nº: 556795874621
 
 ### Adicionando as flags
 
@@ -80,6 +79,7 @@ Na 2º célula:
 ```
 pip install pyrogram tgcrypto
 ```
+
 2) Inicie o programa:
 
 ```
@@ -118,7 +118,7 @@ pyrogram.errors.exceptions.not_acceptable_406.FreshChangeAdminsForbidden: Telegr
 ```
 Causa: possivelmente já tenha sido realizada uma tarefa de clonar o mesmo canal em uma sessão diferente do pyrogram no modo bot e, por isso, a API do Telegram rejeita a nova chamada.
 
-Solução: Entre na sua conta do Telegram e siga este caminho: `Settings > Devices (or Privacy & Security > Active Sessions)`. Em "Active Sessions" desative todas as sessões ativas com os nomes "Cpython" ou "Pyrogram". Por fim, faça refaça a etapa de autenticação.
+Solução: Entre na sua conta do Telegram e siga este caminho: `Settings > Devices (or Privacy & Security > Active Sessions)`. Em "Active Sessions" desative todas as sessões ativas com os nomes "Cpython" ou "Pyrogram". Por fim, refaça a etapa de autenticação.
 
 * [Método get_dialogs](https://docs.pyrogram.org/api/methods/get_dialogs#pyrogram.Client.get_dialogs)
 
