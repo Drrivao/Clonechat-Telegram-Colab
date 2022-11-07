@@ -69,13 +69,6 @@ def get_chats(
 			)
 	return origin_chat
 
-def get_config_data(path_file_config):
-
-	config_file = ConfigParser()
-	config_file.read(path_file_config)
-	default_config = dict(config_file["default"])
-	return default_config
-
 def foward_photo(message, destino):
 
 	caption = get_caption(message)
@@ -499,11 +492,13 @@ def main(
 	global DELAY_AMOUNT
 	global tg,premium
 
-	config_data = get_config_data("config.ini")
-	USER_DELAY_SECONDS=float(config_data.get("user_delay_seconds"))
-	BOT_DELAY_SECONDS=float(config_data.get("bot_delay_seconds"))
-	SKIP_DELAY_SECONDS=float(config_data.get("skip_delay_seconds"))
-	BOT_ID=config_data.get("bot_id")
+	config_data = ConfigParser()
+	config_data.read("config.ini")
+	config_data = dict(config_data["default"])
+	USER_DELAY_SECONDS=float(config_data["user_delay_seconds"])
+	BOT_DELAY_SECONDS=float(config_data["bot_delay_seconds"])
+	SKIP_DELAY_SECONDS=float(config_data["skip_delay_seconds"])
+	BOT_ID=config_data["bot_id"]
 
 	try:
 		client=Client('user',takeout=True)
@@ -550,7 +545,7 @@ def connect_to_api(
 		)
 		with useraccount:
 			useraccount.send_message(
-				"me", "Message sent with **Pyrogram**!"
+				"me", "Message sent with **Clonechat**!"
 			)
 			user_id=useraccount.get_users('me').id
 	except Exception as e:
@@ -565,14 +560,14 @@ def connect_to_api(
 			)
 			with bot:
 				bot.send_message(
-					user_id, "Message sent with **Pyrogram**!"
+					user_id, "Message sent with **Clonechat**!"
 				)
 			BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
 			BOT_ID=f'bot_id:{BOT_ID}'
 		except Exception as e:
 			remove('bot.session')
 			print(f"Connection failed due to {e}.")
-	else: BOT_ID='bot_id:'
+	else: BOT_ID='bot_id:none'
 
 	data=f"[default]\n{BOT_ID}\nuser_delay_seconds:10\n"+\
 	"bot_delay_seconds:1.2\nskip_delay_seconds:1"

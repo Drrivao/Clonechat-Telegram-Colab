@@ -8,25 +8,6 @@ from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
 from argparse import ArgumentParser
 
-def config_data():
-	
-	config_data = ConfigParser()
-	config_data.read("config.ini")
-	config_data = dict(config_data["default"])
-
-	USER_DELAY_SECONDS = float(config_data["user_delay_seconds"])
-	BOT_DELAY_SECONDS = float(config_data["bot_delay_seconds"])
-	SKIP_DELAY_SECONDS = float(config_data["skip_delay_seconds"])
-	BOT_ID=config_data["bot_id"]
-
-	values={
-		"USER_DELAY_SECONDS":USER_DELAY_SECONDS,
-		"BOT_DELAY_SECONDS":BOT_DELAY_SECONDS,
-		"SKIP_DELAY_SECONDS":SKIP_DELAY_SECONDS,
-		"BOT_ID":BOT_ID,
-	}
-	return values
-
 def ensure_connection(client_name):
 
 	if client_name == "user":
@@ -39,7 +20,7 @@ def ensure_connection(client_name):
 		bot.start()
 		return bot
 
-def get_chats(client):
+def get_chats(client,BOT_ID):
 
 	global channel_origem
 	global destino
@@ -51,7 +32,9 @@ def get_chats(client):
 
 	for dialog in list_ch:
 
-		channels_names = str(dialog.chat.title or dialog.chat.first_name)
+		channels_names = str(
+			dialog.chat.title or dialog.chat.first_name
+		)
 		channels_ids = int(dialog.chat.id)
 		names_ch.append(channels_names)
 		ids_ch.append(channels_ids)
@@ -61,7 +44,9 @@ def get_chats(client):
 	chat_ids=get_valid_ids(client,origin_chat)
 
 	if DEST=='auto':
-		channel_destino = client.create_channel(title=f'{names_ch[channel_origem]}-clone')
+		channel_destino = client.create_channel(
+			title=f'{names_ch[channel_origem]}-clone'
+		)
 		destino = channel_destino.id
 	else:
 		channel_destino=names_ch.index(DEST)
@@ -71,7 +56,7 @@ def get_chats(client):
 		chats=[origin_chat,destino]
 		for chat in chats:
 			client.promote_chat_member(
-				chat,config_data()["BOT_ID"],
+				chat,BOT_ID,
 				ChatPrivileges(can_post_messages=True)
 			)
 
@@ -376,9 +361,7 @@ def get_list_posted(CACHE_FILE,int_task_type):
 def wait_a_moment(skip=False):
 
 	if skip:
-		time.sleep(
-			config_data()["SKIP_DELAY_SECONDS"]
-		)
+		time.sleep(SKIP_DELAY_SECONDS)
 	else:
 		time.sleep(DELAY_AMOUNT)
 
@@ -467,13 +450,22 @@ def main(origin_chat):
 
 def start():
 
+	global SKIP_DELAY_SECONDS
 	global DELAY_AMOUNT
 	global premium,tg
+
+	config_data = ConfigParser()
+	config_data.read("config.ini")
+	config_data = dict(config_data["default"])
+	USER_DELAY_SECONDS=float(config_data["user_delay_seconds"])
+	BOT_DELAY_SECONDS=float(config_data["bot_delay_seconds"])
+	SKIP_DELAY_SECONDS=float(config_data["skip_delay_seconds"])
+	BOT_ID=config_data["bot_id"]
 
 	try:
 		client=Client('user',takeout=True)
 		with client:
-			origin_chat_id=get_chats(client)
+			origin_chat_id=get_chats(client,BOT_ID)
 
 		os.system("clear||cls")
 		useraccount = ensure_connection("user")
@@ -483,17 +475,19 @@ def start():
 			bot = ensure_connection("bot")
 			bot.set_parse_mode(ParseMode.DISABLED)
 			tg = bot
-			DELAY_AMOUNT = config_data()["BOT_DELAY_SECONDS"]
+			DELAY_AMOUNT = BOT_DELAY_SECONDS
 		else:
 			useraccount.set_parse_mode(ParseMode.DISABLED)
 			tg = useraccount
-			DELAY_AMOUNT = config_data()["USER_DELAY_SECONDS"]
+			DELAY_AMOUNT = USER_DELAY_SECONDS
 		main(origin_chat_id)
 
 	except TakeoutInitDelay:
-		print('Confirm the data export request first.');exit()
+		print('Confirm the data export request first.')
+		exit()
 	except Exception as e:
-		print(f"It wasn't possible to continue due to {e}\n");exit()
+		print(f"It wasn't possible to continue due to {e}\n")
+		exit()
 
 def connect_to_api(API_ID,API_HASH,BOT_TOKEN):
 
@@ -504,7 +498,7 @@ def connect_to_api(API_ID,API_HASH,BOT_TOKEN):
 		)
 		with useraccount:
 			useraccount.send_message(
-				"me", "Message sent with **Pyrogram**!"
+				"me", "Message sent with **Clonechat**!"
 			)
 			user_id=useraccount.get_users('me').id
 	except Exception as e:
@@ -519,14 +513,14 @@ def connect_to_api(API_ID,API_HASH,BOT_TOKEN):
 			)
 			with bot:
 				bot.send_message(
-					user_id, "Message sent with **Pyrogram**!"
+					user_id, "Message sent with **Clonechat**!"
 				)
 			BOT_ID=BOT_TOKEN[:BOT_TOKEN.find(':')]
 			BOT_ID=f'bot_id:{BOT_ID}'
 		except Exception as e:
 			os.remove('bot.session')
 			print(f"Connection failed due to {e}.")
-	else: BOT_ID='bot_id:'
+	else: BOT_ID='bot_id:none'
 
 	data=f"[default]\n{BOT_ID}\nuser_delay_seconds:10\n"+\
 	"bot_delay_seconds:1.2\nskip_delay_seconds:1"
