@@ -127,6 +127,9 @@ AttributeError: 'NoneType' object has no attribute 'get_dialogs'
 ```
 Causas: os títulos dos chats inseridos não existem ou você não participa deles. Além disso, pode não ter sido feita a autorização para 'Data export request' no seu telegram.
 
+### Aviso
+[Auto Forward Messages](https://github.com/Drrivao/Auto-Forward-Messages) traz significativas melhorias em relação ao "Clonechat Telegram Colab", que não receberá mais atualizações.
+
 ### Créditos
 
 - [Repositório oficial](https://github.com/apenasrr/clonechat)
