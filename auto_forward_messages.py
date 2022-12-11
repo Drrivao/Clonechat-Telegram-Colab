@@ -157,11 +157,12 @@ def auto_forward(client,chat_ids,delay):
 				file.write(json.dumps(id))
 			if id != chat_ids[-1:][0]:sleep(delay)
 		print("Task completed!")
-	except ZeroDivisionError:
-		print("Nothing to do.")
 	except FloodWait as f:
-		print(f);sleep(f.value)
-		auto_forward(client,chat_ids[i:],delay)
+		print(f)
+		sleep(f.value)
+		auto_forward(
+			client,chat_ids[i:],delay
+		)
 
 def get_configs():
 	config_data = ConfigParser()
@@ -213,6 +214,7 @@ chats={
 	'from_chat_id':"",
 	'to_chat_id':""
 }
+
 from_chat_title=options.orig
 to_chat_title=options.dest
 mode=options.mode
