@@ -8,6 +8,8 @@ Abra o [notebook](https://colab.research.google.com/github/Drrivao/Clonechat-Tel
 
 [Obtendo credenciais da API do Telegram](https://upolar.github.io/clonechats-docs/#obtendo-credenciais-da-api-do-telegram)
 
+[Tutorial com imagens](https://t.me/clonechat_telegram_colab)
+
 ### Utilizando filtros e outros argumentos
 
 - MODE: "user" é o modo de clonagem mais lenta e "bot" o mais rápido, porém é necessário que o usuário seja um adm dos canais de orig/dest.
