@@ -19,13 +19,22 @@ def get_chats(client,bot_id):
 	dialogs = client.get_dialogs()
 	for dialog in dialogs:
 		name=f"{dialog.chat.first_name} {dialog.chat.last_name}"
-		if from_chat_title == dialog.chat.title\
-		or from_chat_title in name:
-			chats["from_chat_id"]=dialog.chat.id
-		if to_chat_title is not None:
-			if to_chat_title == dialog.chat.title\
-			or to_chat_title in name:
-				chats["to_chat_id"]=dialog.chat.id
+		chat_title=dialog.chat.title
+
+		if isinstance(chat_title, str) is True:
+			if from_chat_title in chat_title:
+				chats["from_chat_id"]=dialog.chat.id
+				if to_chat_title is not None:
+					if to_chat_title in chat_title:
+						chats["to_chat_id"]=dialog.chat.id
+
+		if isinstance(name, str) is True:
+			if from_chat_title in name:
+				chats["from_chat_id"]=dialog.chat.id
+				if to_chat_title is not None:
+					if to_chat_title in name:
+						chats["to_chat_id"]=dialog.chat.id
+
 	if to_chat_title is None:
 		dest = client.create_channel(
 			title=f'{from_chat_title}-clone'
