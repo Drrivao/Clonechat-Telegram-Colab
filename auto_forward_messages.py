@@ -8,6 +8,7 @@ from argparse import ArgumentParser,BooleanOptionalAction
 from time import sleep
 from os.path import join
 import os
+import re
 import json
 
 def cache():
@@ -17,29 +18,42 @@ def cache():
 
 def get_chats(client,bot_id):
 	dialogs = client.get_dialogs()
-	for dialog in dialogs:
-		name=f"{dialog.chat.first_name} {dialog.chat.last_name}"
-		chat_title=dialog.chat.title
-
-		if isinstance(chat_title, str) is True:
-			if from_chat_title in chat_title:
+	if re.match(r'^(-100)|(^\d{10})',from_chat) is None:
+		for dialog in dialogs:
+			name=f"{dialog.chat.first_name} {dialog.chat.last_name}"
+			chat_title=dialog.chat.title
+			if isinstance(chat_title, str) is True:
+				if from_chat in chat_title:
+					chats["from_chat_id"]=dialog.chat.id
+					if to_chat is not None:
+						if to_chat in chat_title:
+							chats["to_chat_id"]=dialog.chat.id
+			if isinstance(name, str) is True:
+				if from_chat in name:
+					chats["from_chat_id"]=dialog.chat.id
+					if to_chat is not None:
+						if to_chat in name:
+							chats["to_chat_id"]=dialog.chat.id
+		if to_chat is None:
+			dest = client.create_channel(
+				title=f'{from_chat}-clone'
+			)
+			chats["to_chat_id"]=dest.id
+	else:
+		for dialog in dialogs:
+			name=f"{dialog.chat.first_name} {dialog.chat.last_name}"
+			chat_title=dialog.chat.title
+			if from_chat in str(dialog.chat.id):
 				chats["from_chat_id"]=dialog.chat.id
-				if to_chat_title is not None:
-					if to_chat_title in chat_title:
-						chats["to_chat_id"]=dialog.chat.id
-
-		if isinstance(name, str) is True:
-			if from_chat_title in name:
-				chats["from_chat_id"]=dialog.chat.id
-				if to_chat_title is not None:
-					if to_chat_title in name:
-						chats["to_chat_id"]=dialog.chat.id
-
-	if to_chat_title is None:
-		dest = client.create_channel(
-			title=f'{from_chat_title}-clone'
-		)
-		chats["to_chat_id"]=dest.id
+				from_chat_title=chat_title if chat_title\
+					is not None else name
+		if to_chat is None:
+			dest = client.create_channel(
+				title=f'{from_chat_title}-clone'
+			)
+			chats["to_chat_id"]=dest.id
+		else:
+			chats["to_chat_id"]=to_chat
 	if mode == "bot":
 		for chat in [
 			chats["from_chat_id"],chats["to_chat_id"]
@@ -203,8 +217,8 @@ parser.add_argument(
 	"-k","--keep-alive", action=BooleanOptionalAction,
 	help="Keep alive program and forward messages coming from origin chat."
 )
-parser.add_argument("-o","--orig",type=str,help="Origin chat id")
-parser.add_argument("-d","--dest",type=str,help="Destination chat id")
+parser.add_argument("-o","--orig",help="Origin chat id")
+parser.add_argument("-d","--dest",help="Destination chat id")
 parser.add_argument("-q","--query",type=str,default="",help="Query sting")
 parser.add_argument("-r","--resume", action=BooleanOptionalAction,help="Resume task")
 parser.add_argument("-l","--limit",type=int,default=0,help="Max number of messages to forward")
@@ -223,9 +237,8 @@ chats={
 	'from_chat_id':"",
 	'to_chat_id':""
 }
-
-from_chat_title=options.orig
-to_chat_title=options.dest
+from_chat=options.orig
+to_chat=options.dest
 mode=options.mode
 query=options.query
 limit=options.limit

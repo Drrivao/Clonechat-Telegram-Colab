@@ -4,7 +4,7 @@
 
 ### Como usar
 
-Abra o [notebook](https://colab.research.google.com/github/Drrivao/Clonechat-Telegram-Colab/blob/main/Auto_Forward_Messages.ipynb) e execute a primeira célula. Então, preencha os campos seguintes da segunda célula com a sua "api id" e a "api hash" - note que o "bot token" é necessário apenas se desejar utilizar o modo bot. Inseridas as suas credenciais, execute a célula e realize a autenticação 2FA que será socilicitada, inserindo o seu número de telefone. Por fim, concluída essa etapa, insira os nomes dos canais de origem/destino na terceira célula e execute-a.
+Abra o [notebook](https://colab.research.google.com/github/Drrivao/Clonechat-Telegram-Colab/blob/main/Auto_Forward_Messages.ipynb) e execute a primeira célula. Então, preencha os campos seguintes da segunda célula com a sua "api id" e a "api hash" - note que o "bot token" é necessário apenas se desejar utilizar o modo bot. Inseridas as suas credenciais, execute a célula e realize a autenticação 2FA que será socilicitada, inserindo o seu número de telefone. Por fim, concluída essa etapa, insira os nomes ou as IDs dos canais de origem/destino na terceira célula e execute-a.
 
 [Obtendo credenciais da API do Telegram](https://upolar.github.io/clonechats-docs/#obtendo-credenciais-da-api-do-telegram)
 
@@ -24,7 +24,7 @@ Abra o [notebook](https://colab.research.google.com/github/Drrivao/Clonechat-Tel
 - Ao abrir o colab, no painel superior você encontrará o botão "Copiar para o Drive". Ao aperta-lo será criada a cópia do notebook no seu drive dentro de uma pasta chamada "Colab Notebooks". Então, quando precisar utilizar o programa novamente, abra essa cópia e não o notebook salvo neste repositório.
 - Lembre-se de inserir os textos entre aspas simples ou duplas nos campos para "ORIG","DEST" e "QUERY".
 - Se desejar que o canal de destino seja criado automaticamente, deixe o campo "DEST" vazio.
-- Caso queira encaminhar mensagens de um chat de uma conversa com outra pessoa, insira no campo "ORIG" o primeiro nome do usuário, o segundo ou ambos.
+- Caso queira encaminhar mensagens de um chat de uma conversa com outra pessoa, insira no campo "ORIG" o primeiro nome do usuário, o segundo ou ambos. Caso ocorra algum erro, tente inserir a ID do usuário nesse mesmo campo.
 - A primeira célula deve ser executada a cada nova sessão iniciada. Já a segunda pode ser excluída depois de feita a autenticação.
 - Você também pode acessar o colab pelo browser de seu celular, porém, não conseguirá concluir a 2º etapa. Sendo, por isso, necessário que essa seja feita através de um ambiente desktop (PC/laptop/notebook). Então, poderá continuar utilizando o programa em qualquer dispositivo móvel via colab.
 - É possível criar até 50 canais por dia. E o limite recomendado de encaminhamentos de mensagens é de 1000 por dia.
