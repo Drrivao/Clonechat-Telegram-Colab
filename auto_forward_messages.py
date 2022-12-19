@@ -23,13 +23,13 @@ def get_chats(client,bot_id):
 			name=f"{dialog.chat.first_name} {dialog.chat.last_name}"
 			chat_title=dialog.chat.title
 			if isinstance(chat_title, str) is True:
-				if from_chat in chat_title:
+				if from_chat == chat_title:
 					chats["from_chat_id"]=dialog.chat.id
 					if to_chat is not None:
-						if to_chat in chat_title:
+						if to_chat == chat_title:
 							chats["to_chat_id"]=dialog.chat.id
 			if isinstance(name, str) is True:
-				if from_chat in name:
+				if from_chat == name:
 					chats["from_chat_id"]=dialog.chat.id
 					if to_chat is not None:
 						if to_chat in name:
