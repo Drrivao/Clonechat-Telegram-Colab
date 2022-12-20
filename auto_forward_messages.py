@@ -4,6 +4,7 @@ from pyrogram.types import ChatPrivileges
 from configparser import ConfigParser
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.errors.exceptions.flood_420 import FloodWait
+from pyrogram.errors.exceptions.bad_request_400 import MessageIdInvalid
 from argparse import ArgumentParser,BooleanOptionalAction
 from time import sleep
 from os.path import join
@@ -167,8 +168,8 @@ def keep_alive(delay):
 def auto_forward(client,chat_ids,delay):
 	os.system('clear || cls')
 	os.makedirs('posteds',exist_ok=True)
-	try:
-		for i in range(len(chat_ids)):
+	for i in range(len(chat_ids)):
+		try:
 			print(f"{i+1}/{len(chat_ids)}")
 			id=chat_ids[i]
 			client.forward_messages(
@@ -178,14 +179,13 @@ def auto_forward(client,chat_ids,delay):
 			)
 			with open(cache(),"w") as file:
 				file.write(json.dumps(id))
-			if id != chat_ids[-1:][0]:sleep(delay)
-		print("Task completed!")
-	except FloodWait as f:
-		print(f)
-		sleep(f.value)
-		auto_forward(
-			client,chat_ids[i:],delay
-		)
+			if id != chat_ids[-1:][0]:
+				sleep(delay)
+		except FloodWait as f:
+			sleep(f.value)
+		except MessageIdInvalid:
+			pass
+	print("Task completed!")
 
 def get_configs():
 	config_data = ConfigParser()
