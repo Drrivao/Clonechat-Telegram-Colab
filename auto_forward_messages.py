@@ -147,24 +147,6 @@ def get_ids(client):
 	if limit != 0: chat_ids=chat_ids[:limit]
 	return chat_ids
 
-def keep_alive(delay):
-	if options.keep_alive:
-		print("Live mode activated")
-		app=Client(mode)
-		@app.on_message(
-			filters.chat(chats["from_chat_id"]) #add your filters here
-		)
-		async def get_new_messages(client, message):
-			await client.forward_messages(
-				from_chat_id=chats["from_chat_id"],
-				chat_id=chats["to_chat_id"],
-				message_ids=message.id
-			)
-			with open(cache(),"w") as file:
-				file.write(json.dumps(message.id))
-			sleep(delay)
-		app.run()
-
 def auto_forward(client,chat_ids,delay):
 	os.system('clear || cls')
 	os.makedirs('posteds',exist_ok=True)
@@ -185,7 +167,7 @@ def auto_forward(client,chat_ids,delay):
 			sleep(f.value)
 		except MessageIdInvalid:
 			pass
-	print("Task completed!")
+	print("Task completed!\n")
 
 def get_configs():
 	config_data = ConfigParser()
@@ -194,6 +176,16 @@ def get_configs():
 	configs["user_delay_seconds"]=float(config_data["user_delay_seconds"])
 	configs["bot_delay_seconds"]=float(config_data["bot_delay_seconds"])
 	configs["bot_id"]=config_data["bot_id"]
+
+def countdown():
+	time_sec = 4*3600
+	while time_sec:
+		mins, secs = divmod(time_sec, 60)
+		hours, mins = divmod(mins, 60)
+		timeformat = f'{hours:02d}:{mins:02d}:{secs:02d}'
+		print('Restarting in:',timeformat, end='\r')
+		sleep(1)
+		time_sec -= 1
 
 def get_full_chat(delay):
 	client=Client('user',takeout=True)
@@ -204,8 +196,6 @@ def get_full_chat(delay):
 	app.set_parse_mode(ParseMode.DISABLED)
 	with app:
 		auto_forward(app,chat_ids,delay)
-	if options.keep_alive:
-		keep_alive(delay)
 
 os.system('clear || cls')
 parser = ArgumentParser()
@@ -214,8 +204,8 @@ parser.add_argument(
 	help="'user'=forward in user mode,'bot'=forward in bot mode"
 )
 parser.add_argument(
-	"-k","--keep-alive", action=BooleanOptionalAction,
-	help="Keep alive program and forward messages coming from origin chat."
+	"-R","--restart", action=BooleanOptionalAction,
+	help="The program will restart searching for new messages on origin chat."
 )
 parser.add_argument("-o","--orig",help="Origin chat id")
 parser.add_argument("-d","--dest",help="Destination chat id")
@@ -251,7 +241,12 @@ if __name__=="__main__":
 		get_configs()
 		delay=configs["user_delay_seconds"] if mode == "user"\
 		else configs["bot_delay_seconds"]
-		get_full_chat(delay)
+		if options.restart:
+			while True:
+				get_full_chat(delay)
+				countdown()
+		else:
+			get_full_chat(delay)
 	else:
 		connect_to_api(
 			options.api_id,
