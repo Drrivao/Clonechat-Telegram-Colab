@@ -18,7 +18,6 @@ Primeiro, obtenha as suas [credenciais](https://upolar.github.io/clonechats-docs
 
 ### Avisos
 
-- Ao abrir o colab, no painel superior você encontrará o botão "Copiar para o Drive". Ao apertá-lo será criada a cópia do notebook no seu drive dentro de uma pasta chamada "Colab Notebooks". Então, quando precisar utilizar o programa novamente, abra essa cópia e não o notebook salvo neste repositório.
 - Lembre-se de inserir os textos entre aspas simples ou duplas no campo "QUERY".
 - Se desejar que o canal de destino seja criado automaticamente, deixe o campo "DEST" vazio.
 - Caso queira encaminhar mensagens de um chat de uma conversa com outra pessoa, insira no campo "ORIG" o username ou a ID do usuário.
