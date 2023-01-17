@@ -18,43 +18,20 @@ def cache():
 	return CACHE_FILE
 
 def get_chats(client,bot_id):
-	dialogs = client.get_dialogs()
-	if re.match(r'^(-100)|(^\d{10})',from_chat) is None:
-		for dialog in dialogs:
-			name=f"{dialog.chat.first_name} {dialog.chat.last_name}"
-			chat_title=dialog.chat.title
-			if isinstance(chat_title, str) is True:
-				if from_chat == chat_title:
-					chats["from_chat_id"]=dialog.chat.id
-				if to_chat is not None:
-					if to_chat == chat_title:
-						chats["to_chat_id"]=dialog.chat.id
-			if isinstance(name, str) is True:
-				if from_chat == name:
-					chats["from_chat_id"]=dialog.chat.id
-				if to_chat is not None:
-					if to_chat in name:
-						chats["to_chat_id"]=dialog.chat.id
-		if to_chat is None:
-			dest = client.create_channel(
-				title=f'{from_chat}-clone'
-			)
-			chats["to_chat_id"]=dest.id
+	chat=client.get_chat(from_chat)
+	name=f"{chat.first_name} {chat.last_name}"
+	chat_title=chat.title
+	chats["from_chat_id"]=chat.id
+	from_chat_title=chat_title if chat_title is not None else name
+
+	if to_chat is None:
+		dest = client.create_channel(
+			title=f'{from_chat_title}-clone'
+		)
+		chats["to_chat_id"]=dest.id
 	else:
-		for dialog in dialogs:
-			name=f"{dialog.chat.first_name} {dialog.chat.last_name}"
-			chat_title=dialog.chat.title
-			if from_chat in str(dialog.chat.id):
-				chats["from_chat_id"]=dialog.chat.id
-				from_chat_title=chat_title if chat_title\
-					is not None else name
-		if to_chat is None:
-			dest = client.create_channel(
-				title=f'{from_chat_title}-clone'
-			)
-			chats["to_chat_id"]=dest.id
-		else:
-			chats["to_chat_id"]=to_chat
+		chats["to_chat_id"]=to_chat
+
 	if mode == "bot":
 		for chat in [
 			chats["from_chat_id"],chats["to_chat_id"]
