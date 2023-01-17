@@ -30,7 +30,7 @@ def get_chats(client,bot_id):
 		)
 		chats["to_chat_id"]=dest.id
 	else:
-		chats["to_chat_id"]=to_chat
+		chats["to_chat_id"]=client.get_chat(to_chat).id
 
 	if mode == "bot":
 		for chat in [
