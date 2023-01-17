@@ -4,11 +4,8 @@
 
 ### Como usar
 
-Abra o [notebook](https://colab.research.google.com/github/Drrivao/Clonechat-Telegram-Colab/blob/main/Auto_Forward_Messages.ipynb) e execute a primeira célula. Então, preencha os campos seguintes da segunda célula com a sua "api id" e a "api hash" - note que o "bot token" é necessário apenas se desejar utilizar o modo bot. Inseridas as suas credenciais, execute a célula e realize a autenticação 2FA que será socilicitada, informando o seu número de telefone. Por fim, concluída essa etapa, adicione os links, usernames ou as IDs dos canais de origem e de destino na terceira célula e execute-a.
+Primeiro, obtenha as suas [credenciais](https://upolar.github.io/clonechats-docs/#obtendo-credenciais-da-api-do-telegram) e siga o [tutorial](https://t.me/auto_forward_messages_drrivao).
 
-[Obtendo credenciais da API do Telegram](https://upolar.github.io/clonechats-docs/#obtendo-credenciais-da-api-do-telegram)
-
-[Tutorial com imagens](https://t.me/clonechat_telegram_colab)
 
 ### Utilizando filtros e outros argumentos
 
