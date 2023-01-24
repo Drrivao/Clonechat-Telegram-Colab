@@ -4,7 +4,7 @@ from pyrogram.errors import FloodWait,MessageIdInvalid
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
 from configparser import ConfigParser
-from pyrogram import Client,filters
+from pyrogram import Client
 import time,json,os,re
 
 def cache():
@@ -216,7 +216,5 @@ if __name__=="__main__":
 			get_full_chat(delay)
 	else:
 		connect_to_api(
-			options.api_id,
-			options.api_hash,
-			options.bot_token
+			options.api_id,options.api_hash,options.bot_token
 		)
