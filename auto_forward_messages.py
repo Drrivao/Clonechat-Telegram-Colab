@@ -1,20 +1,15 @@
 """Auto Forward Messages"""
-from pyrogram import Client,filters
+from argparse import ArgumentParser,BooleanOptionalAction
+from pyrogram.errors import FloodWait,MessageIdInvalid
+from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import ChatPrivileges
 from configparser import ConfigParser
-from pyrogram.enums.parse_mode import ParseMode
-from pyrogram.errors.exceptions.flood_420 import FloodWait
-from pyrogram.errors.exceptions.bad_request_400 import MessageIdInvalid
-from argparse import ArgumentParser,BooleanOptionalAction
-from time import sleep
-from os.path import join
-import os
-import re
-import json
+from pyrogram import Client,filters
+import time,json,os,re
 
 def cache():
 	cache =f'{chats["from_chat_id"]}_{chats["to_chat_id"]}.json'
-	CACHE_FILE=join('posteds',cache)
+	CACHE_FILE=f'posteds/{cache}'
 	return CACHE_FILE
 
 def get_chats(client,bot_id):
@@ -44,11 +39,7 @@ def get_chats(client,bot_id):
 			)
 
 def connect_to_api(api_id,api_hash,bot_token):
-	client=Client(
-		'user',
-		api_id=api_id,
-		api_hash=api_hash
-	)
+	client=Client('user',api_id=api_id,api_hash=api_hash)
 	with client:
 		user_id=client.get_users('me').id
 		client.send_message(
@@ -56,10 +47,7 @@ def connect_to_api(api_id,api_hash,bot_token):
 		)
 	if bot_token is not None:
 		client=Client(
-			'bot',
-			api_id=api_id,
-			api_hash=api_hash,
-			bot_token=bot_token,
+			'bot',api_id=api_id,api_hash=api_hash,bot_token=bot_token
 		)
 		bot_id=bot_token[:bot_token.find(':')]
 		bot_id=f'bot_id:{bot_id}'
@@ -67,7 +55,8 @@ def connect_to_api(api_id,api_hash,bot_token):
 			client.send_message(
 				user_id,"Message sent with **Auto Forward Messages**!"
 			)
-	else: bot_id='bot_id:none'
+	else:
+		bot_id='bot_id:none'
 
 	data=f"[default]\n{bot_id}\nuser_delay_seconds:10"+\
 	"\nbot_delay_seconds:5"
@@ -110,8 +99,8 @@ def filter_messages(client):
 def get_ids(client):
 	total=client.get_chat_history_count(chats["from_chat_id"])
 	if total > 25000:print(
-	"Warning: origin chat contains a huge number of messages.\n"+
-	"It's recommended forwarding up to 1000 messages a day.\n"
+		"Warning: origin chat contains a huge number of messages.\n"+
+		"It's recommended forwarding up to 1000 messages a day.\n"
 	)
 	chat_ids=filter_messages(client)
 	chat_ids.sort()
@@ -121,7 +110,8 @@ def get_ids(client):
 				last_id = json.loads(file.read())
 			n=chat_ids.index(last_id)+1
 			chat_ids=chat_ids[n:]
-	if limit != 0: chat_ids=chat_ids[:limit]
+	if limit != 0:
+		chat_ids=chat_ids[:limit]
 	return chat_ids
 
 def auto_forward(client,chat_ids,delay):
@@ -139,9 +129,9 @@ def auto_forward(client,chat_ids,delay):
 			with open(cache(),"w") as file:
 				file.write(json.dumps(id))
 			if id != chat_ids[-1:][0]:
-				sleep(delay)
+				time.sleep(delay)
 		except FloodWait as f:
-			sleep(f.value)
+			time.sleep(f.value)
 		except MessageIdInvalid:
 			pass
 	print("Task completed!\n")
@@ -161,7 +151,7 @@ def countdown():
 		hours, mins = divmod(mins, 60)
 		timeformat = f'{hours:02d}:{mins:02d}:{secs:02d}'
 		print('Restarting in:',timeformat, end='\r')
-		sleep(1)
+		time.sleep(1)
 		time_sec -= 1
 
 def get_full_chat(delay):
@@ -190,8 +180,8 @@ parser.add_argument("-q","--query",type=str,default="",help="Query sting")
 parser.add_argument("-r","--resume", action=BooleanOptionalAction,help="Resume task")
 parser.add_argument("-l","--limit",type=int,default=0,help="Max number of messages to forward")
 parser.add_argument("-f","--filter",type=str,default=None,help="Filter messages by kind")
-parser.add_argument('-i','--api-id',type=int,help="api id")
-parser.add_argument('-s','--api-hash',type=str,help="api hash")
+parser.add_argument('-i','--api-id',type=int,help="Api id")
+parser.add_argument('-s','--api-hash',type=str,help="Api hash")
 parser.add_argument('-b','--bot-token',type=str,help="Token of a bot")
 options = parser.parse_args()
 

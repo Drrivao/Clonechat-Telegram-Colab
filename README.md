@@ -1,6 +1,6 @@
 # Auto Forward Messages
 
-> Projeto baseado no [clonechat](https://github.com/apenasrr/clonechat).
+> Projeto inspirado no [clonechat](https://github.com/apenasrr/clonechat).
 
 ### Como usar
 
@@ -9,10 +9,10 @@ Primeiro, obtenha as suas [credenciais](https://upolar.github.io/clonechats-docs
 
 ### Utilizando filtros e outros argumentos
 
-- MODE: "user" é o modo de clonagem mais lenta e "bot" o mais rápido, porém é necessário que o usuário seja um adm dos canais ou dos grupos de origem e destino.
+- MODE: "user" é o modo de clonagem mais lenta e "bot" o mais rápido, porém é necessário que o usuário seja um administrador dos canais ou dos grupos de origem e de destino.
 - FILTER: filtra as mensagens pelo tipo. Para escolher múltiplos tipos, coloque-os separados por vírgulas, por exemplo: "photo,document".
 - QUERY: filtra as mensagens que contêm determinados termos, por exemplo, inserindo "python" o programa irá encaminhar somente as mensagens com o termo "python" na descrição, no texto ou no nome do arquivo.
-- LIMIT: define um limite para a quantidade de mensagens a serem encaminhadas; o recomendado é um limite de até 1000 msgs por dia.
+- LIMIT: define um limite para a quantidade de mensagens a serem encaminhadas.
 - RESUME: o programa retoma um processo de clonagem anterior.
 - RESTART: o programa será reiniciado automaticamente a cada 4 horas para encaminhar novas mensagens do chat de origem.
 
@@ -25,9 +25,9 @@ Primeiro, obtenha as suas [credenciais](https://upolar.github.io/clonechats-docs
 - Você também pode acessar o colab pelo browser de seu celular, porém, não conseguirá concluir a 2º etapa. Sendo, por isso, necessário que essa etapa seja feita através de um ambiente desktop (PC/laptop/notebook). Então, poderá continuar utilizando o programa em qualquer dispositivo móvel via colab.
 - É possível criar até 50 canais por dia. E o limite recomendado de encaminhamentos de mensagens é de 1000 por dia.
 
-### Rodando o programa localmente
+### Rodando o programa localmente (uso básico)
 
-Primeiro, instale qualquer versão do [python](https://www.python.org/downloads/) acima da v3.7 e execute no terminal:
+Primeiro, instale a versão 3.7 ou superior do [python](https://www.python.org/downloads/) e execute no terminal:
 
 ```
 pip uninstall pyrogram && pip install tgcrypto https://github.com/Drrivao/pyrogram/archive/refs/heads/master.zip
