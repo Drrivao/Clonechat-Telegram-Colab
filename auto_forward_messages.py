@@ -12,8 +12,13 @@ def cache():
 	CACHE_FILE=f'posteds/{cache}'
 	return CACHE_FILE
 
+def is_chat_id(chat):
+	chat=re.match(r'^(-100)\d{10}|(^\d{10})',chat)
+	return chat is not None
+
 def get_chats(client,bot_id):
-	chat=client.get_chat(from_chat)
+	chat=client.get_chat(int(from_chat)) if is_chat_id(from_chat)\
+	is True	else client.get_chat(str(from_chat))
 	name=f"{chat.first_name} {chat.last_name}"
 	chat_title=chat.title
 	chats["from_chat_id"]=chat.id
@@ -25,17 +30,18 @@ def get_chats(client,bot_id):
 		)
 		chats["to_chat_id"]=dest.id
 	else:
-		chats["to_chat_id"]=client.get_chat(to_chat).id
+		chats["to_chat_id"]=client.get_chat(str(to_chat)).id if \
+		is_chat_id(to_chat) is False else int(to_chat)
 
 	if mode == "bot":
 		for chat in [
 			chats["from_chat_id"],chats["to_chat_id"]
 		]:
 			client.promote_chat_member(
-			privileges=ChatPrivileges(
-			can_post_messages=True),
-			chat_id=chat,
-			user_id=bot_id
+				privileges=ChatPrivileges(
+				can_post_messages=True),
+				chat_id=chat,
+				user_id=bot_id
 			)
 
 def connect_to_api(api_id,api_hash,bot_token):
