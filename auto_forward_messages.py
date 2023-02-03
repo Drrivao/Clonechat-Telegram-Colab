@@ -1,16 +1,14 @@
 """Auto Forward Messages"""
 from argparse import ArgumentParser,BooleanOptionalAction
 from pyrogram.errors import FloodWait,MessageIdInvalid
-from pyrogram.enums.parse_mode import ParseMode
+from pyrogram.enums import ParseMode
 from pyrogram.types import ChatPrivileges
 from configparser import ConfigParser
 from pyrogram import Client
-import time,json,os,re
-
-def cache():
-	cache =f'{chats["from_chat_id"]}_{chats["to_chat_id"]}.json'
-	CACHE_FILE=f'posteds/{cache}'
-	return CACHE_FILE
+import time
+import json
+import os
+import re
 
 def is_chat_id(chat):
 	chat=re.match(r'^(-100)\d{10}|(^\d{10})',chat)
@@ -18,20 +16,20 @@ def is_chat_id(chat):
 
 def get_chats(client,bot_id):
 	chat=client.get_chat(int(from_chat)) if is_chat_id(from_chat)\
-	is True	else client.get_chat(str(from_chat))
+	else client.get_chat(str(from_chat))
 	name=f"{chat.first_name} {chat.last_name}"
 	chat_title=chat.title
 	chats["from_chat_id"]=chat.id
-	from_chat_title=chat_title if chat_title is not None else name
+	from_chat_title=chat_title if chat_title else name
 
-	if to_chat is None:
+	if to_chat:
+		chats["to_chat_id"]=int(to_chat) if is_chat_id(to_chat)\
+		else client.get_chat(str(to_chat)).id
+	else:
 		dest = client.create_channel(
 			title=f'{from_chat_title}-clone'
 		)
 		chats["to_chat_id"]=dest.id
-	else:
-		chats["to_chat_id"]=client.get_chat(str(to_chat)).id if \
-		is_chat_id(to_chat) is False else int(to_chat)
 
 	if mode == "bot":
 		for chat in [
@@ -51,7 +49,7 @@ def connect_to_api(api_id,api_hash,bot_token):
 		client.send_message(
 			user_id,"Message sent with **Auto Forward Messages**!"
 		)
-	if bot_token is not None:
+	if bot_token:
 		client=Client(
 			'bot',api_id=api_id,api_hash=api_hash,bot_token=bot_token
 		)
@@ -71,7 +69,8 @@ def connect_to_api(api_id,api_hash,bot_token):
 	return client
 
 def filter_messages(client):
-	list=[]
+	list_ids=[]
+
 	print("Getting messages...\n")
 	if query == "":
 		messages=client.get_chat_history(chats["from_chat_id"])
@@ -79,48 +78,46 @@ def filter_messages(client):
 		messages=client.search_messages(
 			chats["from_chat_id"], query=query
 		)
-	for message in messages:
-		if message.media:
-			if filter is not None:
+	if filter:
+		for message in messages:
+			if message.media:
 				msg_media=str(message.media)
-				msg_type=msg_media.replace('MessageMediaType.','').lower()
-				if msg_type in filter:
-					list.append(message.id)
-			else:
-				list.append(message.id)	
-		if message.text:
-			if filter is not None:
-				if "text" in filter:
-					list.append(message.id)
-			else:
-				list.append(message.id)
-		if message.poll:
-			if filter is not None:
-				if "poll" in filter:
-					list.append(message.id)
-			else:
-				list.append(message.id)
-	return list
+				msg_type=msg_media.replace('MessageMediaType.','')
+				if msg_type.lower() in filter:
+					list_ids.append(message.id)
+			if message.text and "text" in filter:
+				list_ids.append(message.id)
+			if message.poll and "poll" in filter:
+				list_ids.append(message.id)
+	else:
+		list_ids=[message.id for message in messages]
+
+	return list_ids
 
 def get_ids(client):
+	global CACHE_FILE
 	total=client.get_chat_history_count(chats["from_chat_id"])
 	if total > 25000:print(
-		"Warning: origin chat contains a huge number of messages.\n"+
-		"It's recommended forwarding up to 1000 messages a day.\n"
+		"Warning: The origin chat contains a large number of messages.\n"+
+		"It is recommended to forward up to 1000 messages per day.\n"
 	)
 	chat_ids=filter_messages(client)
 	chat_ids.sort()
+
+	cache =f'{chats["from_chat_id"]}_{chats["to_chat_id"]}.json'
+	CACHE_FILE=f'posteds/{cache}'
+
 	if options.resume:
-		if os.path.exists(cache()):
-			with open(cache(),"r") as file:
-				last_id = json.loads(file.read())
+		if os.path.exists(CACHE_FILE):
+			with open(CACHE_FILE,"r") as j:
+				last_id = json.load(j)
 			n=chat_ids.index(last_id)+1
 			chat_ids=chat_ids[n:]
 	if limit != 0:
 		chat_ids=chat_ids[:limit]
 	return chat_ids
 
-def auto_forward(client,chat_ids,delay):
+def auto_forward(client,chat_ids):
 	os.system('clear || cls')
 	os.makedirs('posteds',exist_ok=True)
 	for i in range(len(chat_ids)):
@@ -132,23 +129,15 @@ def auto_forward(client,chat_ids,delay):
 				chat_id=chats["to_chat_id"],
 				message_ids=id
 			)
-			with open(cache(),"w") as file:
-				file.write(json.dumps(id))
+			with open(CACHE_FILE,"w") as j:
+				json.dump(id,j)
 			if id != chat_ids[-1:][0]:
 				time.sleep(delay)
 		except FloodWait as f:
 			time.sleep(f.value)
 		except MessageIdInvalid:
 			pass
-	print("Task completed!\n")
-
-def get_configs():
-	config_data = ConfigParser()
-	config_data.read("config.ini")
-	config_data = dict(config_data["default"])
-	configs["user_delay_seconds"]=float(config_data["user_delay_seconds"])
-	configs["bot_delay_seconds"]=float(config_data["bot_delay_seconds"])
-	configs["bot_id"]=config_data["bot_id"]
+	print("\nTask completed!\n")
 
 def countdown():
 	time_sec = 4*3600
@@ -160,7 +149,7 @@ def countdown():
 		time.sleep(1)
 		time_sec -= 1
 
-def get_full_chat(delay):
+def get_full_chat():
 	client=Client('user',takeout=True)
 	with client:
 		get_chats(client,configs["bot_id"])
@@ -168,7 +157,29 @@ def get_full_chat(delay):
 	app=Client(mode)
 	app.set_parse_mode(ParseMode.DISABLED)
 	with app:
-		auto_forward(app,chat_ids,delay)
+		auto_forward(app,chat_ids)
+
+def main():
+	global delay
+	if options.api_id:
+		connect_to_api(options.api_id,options.api_hash,options.bot_token)
+	else:
+		config_data = ConfigParser()
+		config_data.read("config.ini")
+		config_data = dict(config_data["default"])
+		configs["user_delay_seconds"]=float(config_data["user_delay_seconds"])
+		configs["bot_delay_seconds"]=float(config_data["bot_delay_seconds"])
+		configs["bot_id"]=config_data["bot_id"]
+
+		delay=configs["user_delay_seconds"] if mode == "user"\
+		else configs["bot_delay_seconds"]
+
+		if options.restart:
+			while True:
+				get_full_chat()
+				countdown()
+		else:
+			get_full_chat()
 
 os.system('clear || cls')
 parser = ArgumentParser()
@@ -191,15 +202,9 @@ parser.add_argument('-s','--api-hash',type=str,help="Api hash")
 parser.add_argument('-b','--bot-token',type=str,help="Token of a bot")
 options = parser.parse_args()
 
-configs={
-	'user_delay_seconds':"",
-	'bot_delay_seconds':"",
-	'bot_id':""
-}
-chats={
-	'from_chat_id':"",
-	'to_chat_id':""
-}
+configs={}
+chats={}
+
 from_chat=options.orig
 to_chat=options.dest
 mode=options.mode
@@ -207,20 +212,7 @@ query=options.query
 limit=options.limit
 filter = options.filter
 filter=filter.split(",") if\
-filter is not None else None
+filter else None
 
 if __name__=="__main__":
-	if options.api_id is None:
-		get_configs()
-		delay=configs["user_delay_seconds"] if mode == "user"\
-		else configs["bot_delay_seconds"]
-		if options.restart:
-			while True:
-				get_full_chat(delay)
-				countdown()
-		else:
-			get_full_chat(delay)
-	else:
-		connect_to_api(
-			options.api_id,options.api_hash,options.bot_token
-		)
+	main()
