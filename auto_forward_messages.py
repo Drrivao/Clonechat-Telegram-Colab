@@ -99,7 +99,7 @@ def filter_messages(client):
 	return list_ids
 
 def get_ids(client):
-	global CACHE_FILE,forwarded
+	global CACHE_FILE
 	total=client.get_chat_history_count(chats["from_chat_id"])
 	if total > 25000:
 		print(
