@@ -1,9 +1,9 @@
 """Auto Forward Messages"""
-from argparse import ArgumentParser,BooleanOptionalAction
-from pyrogram.errors import FloodWait,MessageIdInvalid
-from pyrogram.enums import ParseMode
+from argparse import ArgumentParser, BooleanOptionalAction
+from pyrogram.errors import MessageIdInvalid
 from pyrogram.types import ChatPrivileges
 from configparser import ConfigParser
+from pyrogram.enums import ParseMode
 from pyrogram import Client
 import time
 import json
@@ -62,18 +62,21 @@ def connect_to_api(api_id,api_hash,bot_token):
 	else:
 		bot_id='bot_id:none'
 
-	data=f"[default]\n{bot_id}\nuser_delay_seconds:10"+\
-	"\nbot_delay_seconds:5"
+	data=f"[default]\n{bot_id}\nuser_delay_seconds:10"+"\nbot_delay_seconds:5"
 	with open('config.ini', 'w') as f:
 		f.write(data)
 	return client
 
+def is_empty_message(message) -> bool:
+    if message.empty or message.service or message.dice or message.location:
+        return True
+
 def filter_messages(client):
 	list_ids=[]
-
 	print("Getting messages...\n")
 	if query == "":
 		messages=client.get_chat_history(chats["from_chat_id"])
+		messages=[msg for msg in messages if not is_empty_message(msg)]
 	else:
 		messages=client.search_messages(
 			chats["from_chat_id"], query=query
@@ -103,38 +106,36 @@ def get_ids(client):
 	)
 	chat_ids=filter_messages(client)
 	chat_ids.sort()
-
 	cache =f'{chats["from_chat_id"]}_{chats["to_chat_id"]}.json'
 	CACHE_FILE=f'posteds/{cache}'
 
-	if options.resume:
-		if os.path.exists(CACHE_FILE):
-			with open(CACHE_FILE,"r") as j:
-				last_id = json.load(j)
-			n=chat_ids.index(last_id)+1
-			chat_ids=chat_ids[n:]
+	if options.resume and os.path.exists(CACHE_FILE):
+		with open(CACHE_FILE,"r") as j:
+			last_id = json.load(j)
+		last_id = [i for i in chat_ids if i <= last_id][-1]
+		n=chat_ids.index(last_id)+1
+		chat_ids=chat_ids[n:]
+
 	if limit != 0:
 		chat_ids=chat_ids[:limit]
+
 	return chat_ids
 
 def auto_forward(client,chat_ids):
-	os.system('clear || cls')
 	os.makedirs('posteds',exist_ok=True)
-	for i in range(len(chat_ids)):
+	for message_id in chat_ids:
 		try:
-			print(f"{i+1}/{len(chat_ids)}")
-			id=chat_ids[i]
+			os.system('clear || cls')
+			print(f"Forwarding: {chat_ids.index(message_id)+1}/{len(chat_ids)}")
 			client.forward_messages(
 				from_chat_id=chats["from_chat_id"],
 				chat_id=chats["to_chat_id"],
-				message_ids=id
+				message_ids=message_id
 			)
 			with open(CACHE_FILE,"w") as j:
-				json.dump(id,j)
-			if id != chat_ids[-1:][0]:
+				json.dump(message_id,j)
+			if message_id != chat_ids[-1]:
 				time.sleep(delay)
-		except FloodWait as f:
-			time.sleep(f.value)
 		except MessageIdInvalid:
 			pass
 	print("\nTask completed!\n")
