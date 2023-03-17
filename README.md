@@ -37,13 +37,13 @@ pip uninstall pyrogram && pip install tgcrypto https://github.com/Drrivao/pyrogr
 Em seguida, realize a autenticação 2FA:
 
 ```
-python auto_forward_messages.py -i "API ID" -s "API HASH"
+python auto_forward_messages.py -i <api id> -s <api hash>
 ```
 
 Por fim, comece a clonar:
 
 ```
-python auto_forward_messages.py -o "origin chat (id/username/link)"
+python auto_forward_messages.py -o <id/username/link>
 ```
 
 Para abrir o menu de ajuda de como usar as flags:
